@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quedas dos Reinos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados para o tema medieval */
+        body {
+            font-family: 'MedievalSharp', cursive;
+            background: linear-gradient(135deg, #1f1f1f, #333333);
+            color: #d3b482;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Estilos de tela */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Efeitos visuais para botões e elementos interativos */
+        .btn {
+            background-color: #6a3d13;
+            color: #fff;
+            padding: 0.75rem 2rem;
+            border: 3px solid #d3b482;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            font-size: 1.25rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #8c5b2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.6);
+        }
+
+        .card-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .card {
+            background: rgba(211, 180, 130, 0.9);
+            border: 5px solid #6a3d13;
+            color: #1f1f1f;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 400px;
+            height: auto;
+            position: relative;
+            text-align: center;
+        }
+
+        .view-icon {
+            cursor: pointer;
+            font-size: 1.25rem;
+            margin-left: 0.5rem;
+            color: #d3b482;
+        }
+
+        /* Estilo da tela principal */
+        .menu-panel {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 3rem;
+            border-radius: 2rem;
+            border: 4px solid #d3b482;
+            box-shadow: inset 0 0 20px #d3b482, 0 0 40px rgba(211, 180, 130, 0.5);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        #rules-screen {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 2px solid #d3b482;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Estilo para o tabuleiro */
+        #game-board-container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+            width: 100%;
+            max-width: 1400px;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        #game-board {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            border: 8px solid #6a3d13;
+            padding: 10px;
+            border-radius: 1rem;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.6);
+            flex-shrink: 0;
+            max-width: 95vw;
+            max-height: 95vw;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 1s ease-in-out;
+        }
+        
+        /* Classes para os mapas */
+        #game-board.map-floresta { background-image: url('https://placehold.co/600x600/228b22/fff?text=Floresta'); }
+        #game-board.map-masmorra { background-image: url('https://placehold.co/600x600/36454F/fff?text=Masmorra'); }
+        #game-board.map-planicie { background-image: url('https://placehold.co/600x600/8B4513/fff?text=Planicie'); }
+        #game-board.map-castelo { background-image: url('https://placehold.co/600x600/708090/fff?text=Castelo'); }
+        #game-board.map-pantano { background-image: url('https://placehold.co/600x600/4B5320/fff?text=Pantano'); }
+        #game-board.map-deserto { background-image: url('https://placehold.co/600x600/F4A460/fff?text=Deserto'); }
+
+        @media (max-width: 768px) {
+            #game-board {
+                width: 95vw;
+                height: 95vw;
+            }
+        }
+
+
+        .board-space {
+            background: rgba(211, 180, 130, 0.8);
+            border: 2px solid #6a3d13;
+            border-radius: 0.5rem;
+            padding: 5px;
+            text-align: center;
+            font-size: 0.75rem;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease-in-out;
+        }
+        
+        /* Cores base para as casas */
+        .challenge-space { background-color: #b22222; }
+        .bonus-space { background-color: #228b22; }
+        .dragon-space { background-color: #8b0000; }
+        .mini-boss-space { background-color: #FFA500; }
+
+        .player-piece {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: all 0.5s ease-in-out;
+            z-index: 10;
+        }
+        
+        .stat-card-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #d3b482;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+
+
+        #log-panel {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #d3b482;
+            border-radius: 1rem;
+            padding: 1rem;
+            width: 300px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #d3b482 #4a2f1b;
+        }
+
+        #log-panel div {
+            padding: 0.5rem;
+            background: rgba(211, 180, 130, 0.1);
+            border-radius: 0.5rem;
+        }
+
+        .stat-card {
+            background: #6a3d13;
+            border: 2px solid #d3b482;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .stat-card h4 { font-size: 1.25rem; font-weight: bold; }
+        .stat-card p { margin: 0; }
+        
+    </style>
+</head>
+<body class="bg-gray-800 text-amber-300">
+    <div class="container">
+
+        <!-- Tela Principal (Menu) -->
+        <div id="main-menu" class="screen menu-panel flex">
+            <h1 class="text-6xl font-bold mb-4">Quedas dos Reinos</h1>
+            <p class="text-xl">Um épico jogo de tabuleiro medieval</p>
+            <div class="flex flex-col space-y-4">
+                <button id="start-game-btn" class="btn">Iniciar Jogo</button>
+                <button id="rules-btn" class="btn">Regras</button>
+            </div>
+            <div id="message-box" class="mt-4 text-center text-xl hidden"></div>
+        </div>
+
+        <!-- Tela de Regras -->
+        <div id="rules-screen" class="hidden">
+            <h2 class="text-3xl font-bold mb-4">Regras do Jogo</h2>
+            <p><strong>Objetivo:</strong> O primeiro jogador a chegar na última casa do tabuleiro vence!</p>
+            <p><strong>Configuração:</strong> Escolha o número de jogadores humanos e IAs, e a dificuldade do jogo. A dificuldade afeta as decisões das IAs em caso de conflito.</p>
+            <p><strong>Turno:</strong> Cada jogador rola um dado para mover sua peça. O número de casas a mover é igual ao resultado do dado.</p>
+            <p><strong>Casas Especiais:</strong></p>
+            <ul class="list-disc list-inside">
+                <li><strong>Casas de Bônus (Verde):</strong> Ganhe 1 Troféu e receba um bônus de história. Ao acumular 3 ou mais, seu personagem é promovido a uma classe superior, dobrando seus atributos.</li>
+                <li><strong>Casas de Desafio (Vermelha):</strong> Retroceda um número aleatório de casas.</li>
+                <li><strong>Casas de Boss (Bordô):</strong> Se dois jogadores pararem na mesma casa, devem se unir para enfrentar o Boss. A vitória exige que os atributos combinados dos jogadores sejam superiores aos do Boss.</li>
+            </ul>
+            <p><strong>Conflito entre Jogadores:</strong> Se um jogador parar em uma casa já ocupada por outro (exceto a casa inicial), um conflito pode ser iniciado. O jogador que chegou por segundo pode escolher entre "Paz" ou "Conflito". Em caso de conflito, o jogador com a maioria dos atributos (Ataque, Defesa, Mana) vence. O vencedor ganha 1 Troféu e o perdedor perde 1.</p>
+            <p><strong>Ficha de Personagem:</strong> Antes de começar, visualize a ficha de cada classe com seus atributos e sua possível evolução.</p>
+            <div class="flex justify-center mt-4">
+                <button id="close-rules-btn" class="btn">Fechar</button>
+            </div>
+        </div>
+
+        <!-- Tela de Configuração -->
+        <div id="setup-screen" class="screen flex-col">
+            <h2 class="text-4xl font-bold">Configurar Jogo</h2>
+            
+            <div class="flex flex-col items-center space-y-4">
+                <div class="flex items-center space-x-2">
+                    <label for="difficulty-select">Dificuldade:</label>
+                    <select id="difficulty-select" class="bg-gray-700 text-amber-300 p-2 rounded">
+                        <option value="easy">Fácil</option>
+                        <option value="medium">Médio</option>
+                        <option value="hard">Difícil</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <label for="map-select">Mapa:</label>
+                    <select id="map-select" class="bg-gray-700 text-amber-300 p-2 rounded">
+                        <option value="floresta">Floresta</option>
+                        <option value="masmorra">Masmorra</option>
+                        <option value="planicie">Planície</option>
+                        <option value="castelo">Castelo</option>
+                        <option value="pantano">Pântano</option>
+                        <option value="deserto">Deserto</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <label for="player-count">Jogadores Humanos:</label>
+                    <select id="player-count" class="bg-gray-700 text-amber-300 p-2 rounded">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <label for="ai-count">Jogadores IA:</label>
+                    <select id="ai-count" class="bg-gray-700 text-amber-300 p-2 rounded">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="player-setup-form" class="space-y-4 mt-4"></div>
+            <button id="begin-game-btn" class="btn mt-4">Começar Jogo</button>
+            <button id="back-to-main-btn" class="btn mt-2">Voltar</button>
+        </div>
+        
+        <!-- Tela de Visualização de Personagem -->
+        <div id="character-card-popup" class="hidden card-popup">
+            <div class="card">
+                <img id="character-card-img" class="stat-card-image mx-auto" src="" alt="">
+                <h3 id="character-card-name" class="text-2xl font-bold mb-4"></h3>
+                <p id="character-card-class" class="text-xl mb-2"></p>
+                <div class="text-left space-y-2 mt-4">
+                    <p><strong>Ataque:</strong> <span id="character-card-atk"></span></p>
+                    <p><strong>Defesa:</strong> <span id="character-card-def"></span></p>
+                    <p><strong>Mana/Estamina:</strong> <span id="character-card-mana"></span></p>
+                </div>
+                <div class="text-left mt-4 border-t border-gray-500 pt-4">
+                    <h4 class="text-xl font-bold">Promoção:</h4>
+                    <p id="character-card-promoted-class" class="text-lg"></p>
+                    <div class="text-left space-y-2 mt-2">
+                        <p><strong>Ataque:</strong> <span id="character-promoted-atk"></span></p>
+                        <p><strong>Defesa:</strong> <span id="character-promoted-def"></span></p>
+                        <p><strong>Mana/Estamina:</strong> <span id="character-promoted-mana"></span></p>
+                    </div>
+                </div>
+                <button id="close-character-card-btn" class="btn mt-4">Fechar</button>
+            </div>
+        </div>
+
+        <!-- Tela do Jogo -->
+        <div id="game-screen" class="screen flex-col">
+            <div class="flex items-center justify-between w-full max-w-6xl p-4 bg-gray-900 border-2 border-amber-500 rounded-xl mb-4">
+                <div id="turn-info" class="text-2xl font-bold"></div>
+                <div id="player-list" class="text-sm"></div>
+            </div>
+
+            <div id="game-board-container">
+                <div id="game-board"></div>
+                <div id="log-panel" class="hidden md:block">
+                    <h3 class="text-xl font-bold mb-2 text-center">Últimos Movimentos</h3>
+                    <div id="log-content"></div>
+                    <button id="leave-game-btn" class="btn mt-4">Sair da partida</button>
+                </div>
+            </div>
+
+            <div id="control-panel" class="mt-4 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+                <button id="roll-dice-btn" class="btn">Rolar Dado</button>
+                <div id="dice-result" class="text-4xl"></div>
+            </div>
+        </div>
+        
+        <!-- Card para eventos de bônus/desafio -->
+        <div id="card-popup" class="hidden card-popup">
+            <div class="card">
+                <h3 id="card-title" class="text-2xl font-bold mb-4"></h3>
+                <p id="card-description" class="text-lg"></p>
+                <button id="close-card-btn" class="btn mt-4 hidden">Fechar</button>
+            </div>
+        </div>
+
+        <!-- Tela de Conflito Genérico (incluindo Boss/Mini-Boss) -->
+        <div id="conflict-screen" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50">
+            <div class="bg-gray-900 border-4 border-red-500 p-8 rounded-xl shadow-lg text-center space-y-6 max-w-xl w-full">
+                <h2 id="conflict-title" class="text-3xl font-bold">Conflito!</h2>
+                <div id="conflict-details" class="flex flex-col md:flex-row justify-center items-center md:items-start space-y-4 md:space-y-0 md:space-x-8">
+                    <!-- Cards de Jogador(es) e Oponente -->
+                    <div id="conflict-player-card" class="stat-card">
+                        <img id="conflict-player-img" class="stat-card-image" src="" alt="">
+                        <h4 id="conflict-player-name"></h4>
+                        <p>Ataque: <span id="conflict-player-atk"></span></p>
+                        <p>Defesa: <span id="conflict-player-def"></span></p>
+                        <p>Estamina: <span id="conflict-player-mana"></span></p>
+                    </div>
+                    <div class="text-4xl font-bold mt-8">VS</div>
+                    <div id="conflict-opponent-card" class="stat-card">
+                        <img id="conflict-opponent-img" class="stat-card-image" src="" alt="">
+                        <h4 id="conflict-opponent-name"></h4>
+                        <p>Ataque: <span id="conflict-opponent-atk"></span></p>
+                        <p>Defesa: <span id="conflict-opponent-def"></span></p>
+                        <p>Estamina: <span id="conflict-opponent-mana"></span></p>
+                    </div>
+                </div>
+                <div id="conflict-result"></div>
+                <div id="conflict-buttons">
+                    <button id="peace-btn" class="btn">Paz</button>
+                    <button id="conflict-btn" class="btn">Conflito</button>
+                </div>
+                <button id="close-conflict-btn" class="btn hidden">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Pop-up para escolha do Boss (Lutar ou Esperar) -->
+        <div id="boss-choice-popup" class="hidden card-popup">
+            <div class="card">
+                <h3 class="text-2xl font-bold mb-4">Você encontrou o Boss!</h3>
+                <p class="text-lg mb-4">Escolha sua ação:</p>
+                <button id="boss-fight-alone-btn" class="btn">Lutar Sozinho (e morrer)</button>
+                <button id="boss-wait-btn" class="btn">Esperar por um Aliado</button>
+            </div>
+        </div>
+        
+        <!-- Tela de Vitória -->
+        <div id="win-screen" class="screen menu-panel">
+            <h2 class="text-5xl font-bold">Vitória!</h2>
+            <p id="winner-name" class="text-3xl"></p>
+            <button id="play-again-btn" class="btn">Jogar Novamente</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Variáveis Globais ---
+        const game = {
+            players: [],
+            currentPlayerIndex: 0,
+            boardSize: 50,
+            log: [],
+            promotionTrophies: 3,
+            spaces: [],
+            difficulty: 'easy',
+            selectedMap: 'floresta',
+            currentMapTheme: {},
+            classes: [
+                { name: 'Espadachim', emoji: '⚔️', stats: { atk: 6, def: 8, mana: 4 }, promoted: 'Cavaleiro', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Espadachim' },
+                { name: 'Mago', emoji: '🧙‍♂️', stats: { atk: 5, def: 5, mana: 10 }, promoted: 'Arquimago', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Mago' },
+                { name: 'Bruxo', emoji: '🔮', stats: { atk: 7, def: 5, mana: 8 }, promoted: 'Necromante', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Bruxo' },
+                { name: 'Arqueiro', emoji: '🏹', stats: { atk: 9, def: 4, mana: 5 }, promoted: 'Atirador', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Arqueiro' },
+                { name: 'Escudeiro', emoji: '🛡️', stats: { atk: 4, def: 10, mana: 6 }, promoted: 'Cruzado', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Escudeiro' },
+                { name: 'Druida', emoji: '🌿', stats: { atk: 5, def: 7, mana: 8 }, promoted: 'Sábio da Natureza', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Druida' },
+                { name: 'Bardo', emoji: '🎵', stats: { atk: 6, def: 6, mana: 8 }, promoted: 'Maestro', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Bardo' },
+                { name: 'Bárbaro', emoji: '🪓', stats: { atk: 10, def: 5, mana: 5 }, promoted: 'Berserker', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Bárbaro' }
+            ],
+            promotedClasses: {
+                'Cavaleiro': { name: 'Cavaleiro', atk: 12, def: 16, mana: 8, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Cavaleiro' },
+                'Arquimago': { name: 'Arquimago', atk: 10, def: 10, mana: 20, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Arquimago' },
+                'Necromante': { name: 'Necromante', atk: 14, def: 10, mana: 16, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Necromante' },
+                'Atirador': { name: 'Atirador', atk: 18, def: 8, mana: 10, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Atirador' },
+                'Cruzado': { name: 'Cruzado', atk: 8, def: 20, mana: 12, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Cruzado' },
+                'Sábio da Natureza': { name: 'Sábio da Natureza', atk: 10, def: 14, mana: 16, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Sabio' },
+                'Maestro': { name: 'Maestro', atk: 12, def: 12, mana: 16, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Maestro' },
+                'Berserker': { name: 'Berserker', atk: 20, def: 10, mana: 10, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Berserker' }
+            },
+            mapThemes: {
+                floresta: {
+                    boss: { name: "Dragão Ancestral", emoji: "🐉", stats: { atk: 15, def: 15, mana: 15 }, image: 'https://placehold.co/100x100/8b0000/fff?text=Dragao' },
+                    miniBoss: { name: "Ogro da Floresta", emoji: "👹", stats: { atk: 10, def: 8, mana: 5 }, image: 'https://placehold.co/100x100/FFA500/fff?text=Ogro' },
+                    challengeStories: [
+                        { text: "Você tropeçou em um enxame de Goblins. Volte 2 casas!", steps: 2 },
+                        { text: "Uma Árvore Guardiã te barra o caminho. Volte 3 casas!", steps: 3 },
+                        { text: "Você foi envenenado por um Cogumelo Ilusório. Volte 1 casa!", steps: 1 }
+                    ],
+                    bonusStories: [
+                        { text: "Você encontrou um Gnomo Mágico. Ele te deu um Troféu e você avança!", steps: 2 },
+                        { text: "Um riacho de águas cristalinas restaurou suas energias. Avance 2 casas!", steps: 2 },
+                        { text: "Um tesouro de um aventureiro perdido. Avance 3 casas!", steps: 3 }
+                    ]
+                },
+                masmorra: {
+                    boss: { name: "O Lich Supremo", emoji: "💀", stats: { atk: 18, def: 12, mana: 18 }, image: 'https://placehold.co/100x100/000000/fff?text=Lich' },
+                    miniBoss: { name: "Lorde Esqueleto", emoji: "🦴", stats: { atk: 12, def: 10, mana: 8 }, image: 'https://placehold.co/100x100/FFA500/fff?text=Esqueleto' },
+                    challengeStories: [
+                        { text: "Um exército de Esqueletos te ataca! Volte 3 casas!", steps: 3 },
+                        { text: "Você ativou uma armadilha de espinhos. Volte 2 casas!", steps: 2 },
+                        { text: "Você se perdeu nos corredores escuros da Masmorra. Volte 4 casas!", steps: 4 }
+                    ],
+                    bonusStories: [
+                        { text: "Você encontrou um baú de tesouro com um Troféu!", steps: 0 },
+                        { text: "Um fantasma amigável te guia para um atalho. Avance 3 casas!", steps: 3 },
+                        { text: "Você achou uma poção de velocidade. Avance 2 casas!", steps: 2 }
+                    ]
+                },
+                planicie: {
+                    boss: { name: "O Gigante da Terra", emoji: "🗿", stats: { atk: 20, def: 20, mana: 5 }, image: 'https://placehold.co/100x100/708090/fff?text=Gigante' },
+                    miniBoss: { name: "Wyvern Infernal", emoji: "🔥", stats: { atk: 15, def: 10, mana: 12 }, image: 'https://placehold.co/100x100/FFA500/fff?text=Wyvern' },
+                    challengeStories: [
+                        { text: "Um Trovão Elétrico te atingiu! Volte 2 casas!", steps: 2 },
+                        { text: "Uma horda de Cães Infernais te encurrala. Volte 3 casas!", steps: 3 },
+                        { text: "Você foi pego em um redemoinho. Volte 1 casa!", steps: 1 }
+                    ],
+                    bonusStories: [
+                        { text: "Você achou um cristal de mana. Ganhe um Troféu!", steps: 0 },
+                        { text: "Uma caravana te dá uma carona. Avance 4 casas!", steps: 4 },
+                        { text: "Você foi abençoado pelos deuses. Avance 2 casas!", steps: 2 }
+                    ]
+                },
+                castelo: {
+                    boss: { name: "O Rei Sanguinário", emoji: "👑", stats: { atk: 16, def: 18, mana: 10 }, image: 'https://placehold.co/100x100/8b0000/fff?text=Rei' },
+                    miniBoss: { name: "General da Guarda", emoji: "🛡️", stats: { atk: 12, def: 15, mana: 10 }, image: 'https://placehold.co/100x100/FFA500/fff?text=General' },
+                    challengeStories: [
+                        { text: "Fui preso pela Guarda Real! Volte 2 casas!", steps: 2 },
+                        { text: "O chão desmorona, levando a um buraco! Volte 3 casas!", steps: 3 },
+                        { text: "Um assassino de elite te persegue. Volte 1 casa!", steps: 1 }
+                    ],
+                    bonusStories: [
+                        { text: "Você foi reconhecido como um herói e ganhou um Troféu!", steps: 0 },
+                        { text: "Uma passagem secreta te leva a um atalho. Avance 3 casas!", steps: 3 },
+                        { text: "Você encontrou uma armadura lendária. Avance 2 casas!", steps: 2 }
+                    ]
+                },
+                pantano: {
+                    boss: { name: "A Sereia Maldita", emoji: "🧜‍♀️", stats: { atk: 10, def: 10, mana: 20 }, image: 'https://placehold.co/100x100/4B5320/fff?text=Sereia' },
+                    miniBoss: { name: "Rei Sapo Gigante", emoji: "🐸", stats: { atk: 8, def: 10, mana: 15 }, image: 'https://placehold.co/100x100/FFA500/fff?text=Sapo' },
+                    challengeStories: [
+                        { text: "Uma nuvem de gás tóxico te paralisa. Volte 2 casas!", steps: 2 },
+                        { text: "Você foi atacado por uma Sanguessuga Gigante! Volte 3 casas!", steps: 3 },
+                        { text: "O terreno pantanoso te prende. Volte 1 casa!", steps: 1 }
+                    ],
+                    bonusStories: [
+                        { text: "Você encontrou um cogumelo mágico que te dá um Troféu!", steps: 0 },
+                        { text: "Uma tartaruga sábia te leva em suas costas. Avance 3 casas!", steps: 3 },
+                        { text: "Você encontrou um cajado ancestral. Avance 2 casas!", steps: 2 }
+                    ]
+                },
+                deserto: {
+                    boss: { name: "O Sacerdote do Sol", emoji: "☀️", stats: { atk: 12, def: 12, mana: 16 }, image: 'https://placehold.co/100x100/F4A460/fff?text=Sacerdote' },
+                    miniBoss: { name: "Serpente de Areia", emoji: "🐍", stats: { atk: 10, def: 8, mana: 10 }, image: 'https://placehold.co/100x100/FFA500/fff?text=Serpente' },
+                    challengeStories: [
+                        { text: "Uma tempestade de areia te desorienta. Volte 3 casas!", steps: 3 },
+                        { text: "Um Golem de Areia te ataca! Volte 2 casas!", steps: 2 },
+                        { text: "Você foi mordido por um Escorpião Gigante. Volte 1 casa!", steps: 1 }
+                    ],
+                    bonusStories: [
+                        { text: "Você encontrou um oásis com uma fruta sagrada. Ganhe um Troféu!", steps: 0 },
+                        { text: "Um mapa antigo te leva a um atalho. Avance 4 casas!", steps: 4 },
+                        { text: "Você encontrou uma lâmpada mágica. Avance 2 casas!", steps: 2 }
+                    ]
+                }
+            }
+        };
+
+        // Variável global para armazenar o jogador que está esperando pelo boss
+        let playerWaitingForBoss = null;
+
+        // --- Elementos do DOM ---
+        const mainMenuScreen = document.getElementById('main-menu');
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const winScreen = document.getElementById('win-screen');
+        const conflictScreen = document.getElementById('conflict-screen');
+        const messageBox = document.getElementById('message-box');
+        const gameBoard = document.getElementById('game-board');
+        const turnInfo = document.getElementById('turn-info');
+        const rollDiceBtn = document.getElementById('roll-dice-btn');
+        const diceResultDiv = document.getElementById('dice-result');
+        const cardPopup = document.getElementById('card-popup');
+        const cardTitle = document.getElementById('card-title');
+        const cardDescription = document.getElementById('card-description');
+        const playerSetupForm = document.getElementById('player-setup-form');
+        const playerCountSelect = document.getElementById('player-count');
+        const aiCountSelect = document.getElementById('ai-count');
+        const difficultySelect = document.getElementById('difficulty-select');
+        const mapSelect = document.getElementById('map-select');
+        const logContent = document.getElementById('log-content');
+        const peaceBtn = document.getElementById('peace-btn');
+        const conflictBtn = document.getElementById('conflict-btn');
+        const closeConflictBtn = document.getElementById('close-conflict-btn');
+        const conflictTitle = document.getElementById('conflict-title');
+        const rulesBtn = document.getElementById('rules-btn');
+        const rulesScreen = document.getElementById('rules-screen');
+        const closeRulesBtn = document.getElementById('close-rules-btn');
+        const characterCardPopup = document.getElementById('character-card-popup');
+        const closeCharacterCardBtn = document.getElementById('close-character-card-btn');
+        const leaveGameBtn = document.getElementById('leave-game-btn');
+        const backToMainBtn = document.getElementById('back-to-main-btn');
+        const bossChoicePopup = document.getElementById('boss-choice-popup');
+        const bossFightAloneBtn = document.getElementById('boss-fight-alone-btn');
+        const bossWaitBtn = document.getElementById('boss-wait-btn');
+        
+        // --- Event Listeners ---
+        document.getElementById('start-game-btn').addEventListener('click', () => showScreen('setup'));
+        document.getElementById('begin-game-btn').addEventListener('click', () => initializeGame());
+        document.getElementById('play-again-btn').addEventListener('click', () => { location.reload(); });
+        rollDiceBtn.addEventListener('click', () => {
+            if (rollDiceBtn.disabled) return;
+            rollDice();
+        });
+        rulesBtn.addEventListener('click', () => rulesScreen.classList.remove('hidden'));
+        closeRulesBtn.addEventListener('click', () => rulesScreen.classList.add('hidden'));
+        closeCharacterCardBtn.addEventListener('click', () => characterCardPopup.classList.add('hidden'));
+        leaveGameBtn.addEventListener('click', () => location.reload());
+        backToMainBtn.addEventListener('click', () => showScreen('main'));
+        
+        playerCountSelect.addEventListener('change', createPlayerSetup);
+        aiCountSelect.addEventListener('change', createPlayerSetup);
+
+        // Lógica de escolha do Boss
+        bossFightAloneBtn.addEventListener('click', () => handleBossChoice(game.players[game.currentPlayerIndex], 'fight'));
+        bossWaitBtn.addEventListener('click', () => handleBossChoice(game.players[game.currentPlayerIndex], 'wait'));
+
+
+        // --- Funções de Lógica do Jogo ---
+
+        // Alterna entre as telas do jogo
+        function showScreen(screen) {
+            const screens = [mainMenuScreen, setupScreen, gameScreen, winScreen];
+            screens.forEach(s => s.style.display = 'none');
+
+            // Esconde todas as popups
+            characterCardPopup.classList.add('hidden');
+            cardPopup.classList.add('hidden');
+            conflictScreen.classList.add('hidden');
+            bossChoicePopup.classList.add('hidden');
+
+
+            switch (screen) {
+                case 'main': mainMenuScreen.style.display = 'flex'; break;
+                case 'setup': setupScreen.style.display = 'flex'; break;
+                case 'game': gameScreen.style.display = 'flex'; break;
+                case 'win': winScreen.style.display = 'flex'; break;
+                case 'conflict': conflictScreen.style.display = 'flex'; break;
+            }
+        }
+
+        // Exibe uma mensagem temporária na tela
+        function showMessage(msg, duration = 3000) {
+            messageBox.textContent = msg;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => messageBox.classList.add('hidden'), duration);
+        }
+
+        // Adiciona uma entrada ao log de movimentos
+        function addLogEntry(msg) {
+            game.log.unshift(msg);
+            if (game.log.length > 5) {
+                game.log.pop();
+            }
+            logContent.innerHTML = game.log.map(entry => `<div>${entry}</div>`).join('');
+        }
+
+        // Gera a interface de seleção de jogadores dinamicamente
+        function createPlayerSetup() {
+            playerSetupForm.innerHTML = '';
+            const playerCount = parseInt(playerCountSelect.value);
+
+            // Crie uma lista de classes disponíveis para os jogadores humanos
+            const availableClasses = [...game.classes];
+
+            for (let i = 0; i < playerCount; i++) {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'flex items-center space-x-2';
+                const classOptions = availableClasses.map(c => `<option value="${c.name}">${c.emoji} ${c.name}</option>`).join('');
+                playerDiv.innerHTML = `
+                    <label>Jogador ${i + 1}:</label>
+                    <input type="text" placeholder="Nome" class="player-name bg-gray-700 text-amber-300 p-1 rounded" required>
+                    <div class="relative inline-block">
+                        <select class="player-class bg-gray-700 text-amber-300 p-1 rounded">
+                            ${classOptions}
+                        </select>
+                        <span class="view-icon" onclick="showCharacterCard(this.previousElementSibling.value)">👁️</span>
+                    </div>
+                `;
+                playerSetupForm.appendChild(playerDiv);
+            }
+        }
+
+        // Mostra a carta de personagem
+        function showCharacterCard(className) {
+            const charClass = game.classes.find(c => c.name === className);
+            const promotedClass = game.promotedClasses[charClass.promoted];
+            
+            document.getElementById('character-card-img').src = charClass.image;
+            document.getElementById('character-card-img').alt = `Imagem de ${charClass.name}`;
+            document.getElementById('character-card-name').textContent = charClass.name;
+            document.getElementById('character-card-class').textContent = `${charClass.emoji} ${charClass.name}`;
+            document.getElementById('character-card-atk').textContent = charClass.stats.atk;
+            document.getElementById('character-card-def').textContent = charClass.stats.def;
+            document.getElementById('character-card-mana').textContent = charClass.stats.mana;
+            
+            document.getElementById('character-card-promoted-class').textContent = promotedClass ? promotedClass.name : 'N/A';
+            document.getElementById('character-promoted-atk').textContent = promotedClass ? promotedClass.atk : 'N/A';
+            document.getElementById('character-promoted-def').textContent = promotedClass ? promotedClass.def : 'N/A';
+            document.getElementById('character-promoted-mana').textContent = promotedClass ? promotedClass.mana : 'N/A';
+            
+            characterCardPopup.classList.remove('hidden');
+        }
+
+        // Prepara o jogo com os jogadores selecionados e IAs
+        function initializeGame() {
+            const playerCount = parseInt(playerCountSelect.value);
+            const aiCount = parseInt(aiCountSelect.value);
+            game.difficulty = difficultySelect.value;
+            game.selectedMap = mapSelect.value;
+            game.currentMapTheme = game.mapThemes[game.selectedMap];
+            
+            const playerNames = document.querySelectorAll('.player-name');
+            const playerClasses = document.querySelectorAll('.player-class');
+            const chosenClassNames = Array.from(playerClasses).map(s => s.value);
+            game.players = [];
+
+            // Adiciona jogadores humanos
+            playerNames.forEach((input, i) => {
+                const name = input.value || `Jogador ${i + 1}`;
+                const className = playerClasses[i].value;
+                const baseClass = game.classes.find(c => c.name === className);
+                game.players.push({
+                    name,
+                    class: className,
+                    baseClass: baseClass,
+                    isPromoted: false,
+                    position: 0,
+                    trophies: 0,
+                    isAI: false,
+                    stats: { ...baseClass.stats },
+                    image: baseClass.image
+                });
+            });
+
+            // Adiciona IAs
+            const allClasses = game.classes.map(c => c.name);
+            let availableClasses = allClasses.filter(c => !chosenClassNames.includes(c));
+            
+            // Garante que há classes suficientes para IAs, mesmo que repetidas
+            while (availableClasses.length < aiCount) {
+                availableClasses = availableClasses.concat(allClasses);
+            }
+
+            for (let i = 0; i < aiCount; i++) {
+                const aiClassName = availableClasses[i];
+                const aiClass = game.classes.find(c => c.name === aiClassName);
+                game.players.push({
+                    name: `IA - ${aiClassName}`,
+                    class: aiClassName,
+                    baseClass: aiClass,
+                    isPromoted: false,
+                    position: 0,
+                    trophies: 0,
+                    isAI: true,
+                    stats: { ...aiClass.stats },
+                    image: aiClass.image
+                });
+            }
+            
+            // Sorteia a ordem de jogo
+            game.players.sort(() => Math.random() - 0.5);
+            game.currentPlayerIndex = 0;
+
+            createBoard();
+            renderPlayers();
+            showScreen('game');
+            updateDisplay();
+            addLogEntry(`A ordem de jogada foi sorteada. É a vez de ${game.players[game.currentPlayerIndex].name}!`);
+            if (game.players[game.currentPlayerIndex].isAI) {
+                setTimeout(() => playTurn(), 2000);
+            }
+        }
+        
+        // Gera coordenadas para um tabuleiro em espiral, de fora para dentro
+        function generateSpiralCoords(size, width, height) {
+            const coords = [];
+            let x = 0, y = 0;
+            let dx = 1, dy = 0;
+            let step = 1;
+            let stepCount = 0;
+            const spaceSize = 60; // Tamanho de cada casa
+            const centerOffsetX = (width / 2) - (spaceSize / 2);
+            const centerOffsetY = (height / 2) - (spaceSize / 2);
+            
+            // A lógica de geração em espiral é a mesma, mas a ordem é invertida
+            const tempCoords = [];
+            for (let i = 0; i < size; i++) {
+                tempCoords.push({ x: x * spaceSize + centerOffsetX, y: y * spaceSize + centerOffsetY });
+                
+                x += dx;
+                y += dy;
+                stepCount++;
+                
+                if (stepCount === step) {
+                    stepCount = 0;
+                    const tempDx = -dy;
+                    dy = dx;
+                    dx = tempDx;
+                    if (dy === 0) step++;
+                }
+            }
+            // Inverte a ordem para que a casa 1 fique fora e a 50 no meio
+            return tempCoords.reverse();
+        }
+
+
+        // Cria e desenha o tabuleiro em espiral
+        function createBoard() {
+            gameBoard.innerHTML = '';
+            game.spaces = [];
+            
+            const boardWidth = gameBoard.clientWidth;
+            const boardHeight = gameBoard.clientHeight;
+            const spaceCoords = generateSpiralCoords(game.boardSize, boardWidth, boardHeight);
+            
+            const spaceTypes = generateRandomSpaces(game.boardSize);
+            
+            gameBoard.className = `map-${game.selectedMap}`;
+            gameBoard.classList.add('rounded-xl', 'shadow-lg');
+
+            for (let i = 0; i < game.boardSize; i++) {
+                const space = document.createElement('div');
+                space.className = 'board-space';
+                space.id = `space-${i}`;
+                space.textContent = i + 1;
+                space.style.left = `${spaceCoords[i].x}px`;
+                space.style.top = `${spaceCoords[i].y}px`;
+
+                const type = spaceTypes[i];
+                if (type === 'bonus') {
+                    space.classList.add('bonus-space');
+                } else if (type === 'challenge') {
+                    space.classList.add('challenge-space');
+                } else if (type === 'boss') {
+                    space.classList.add('dragon-space');
+                } else if (type === 'mini-boss') {
+                    space.classList.add('mini-boss-space');
+                }
+
+                game.spaces.push({ element: space, type: type });
+                gameBoard.appendChild(space);
+            }
+        }
+        
+        // Gera posições aleatórias para bônus, desafios e mini-bosses
+        function generateRandomSpaces(boardSize) {
+            const types = Array(boardSize).fill('normal');
+            const bonusCount = Math.floor(boardSize / 5);
+            const challengeCount = Math.floor(boardSize / 7);
+            
+            const shuffledIndices = Array.from({ length: boardSize - 2 }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+
+            // Adiciona as casas de bônus e desafio
+            for (let i = 0; i < bonusCount && shuffledIndices.length > 0; i++) {
+                types[shuffledIndices.pop()] = 'bonus';
+            }
+            for (let i = 0; i < challengeCount && shuffledIndices.length > 0; i++) {
+                types[shuffledIndices.pop()] = 'challenge';
+            }
+
+            // Adiciona a casa do Boss
+            types[shuffledIndices.pop()] = 'boss';
+            
+            // Adiciona mini-bosses com base na dificuldade
+            let miniBossCount = 0;
+            if (game.difficulty === 'medium') {
+                miniBossCount = 1;
+            } else if (game.difficulty === 'hard') {
+                miniBossCount = 2;
+            }
+
+            for (let i = 0; i < miniBossCount && shuffledIndices.length > 0; i++) {
+                types[shuffledIndices.pop()] = 'mini-boss';
+            }
+            
+            return types;
+        }
+
+        // Desenha as peças dos jogadores no tabuleiro
+        function renderPlayers() {
+            game.players.forEach((player, index) => {
+                const piece = document.createElement('div');
+                piece.className = 'player-piece';
+                piece.id = `player-piece-${index}`;
+                const playerClass = game.classes.find(c => c.name === player.class);
+                piece.textContent = playerClass.emoji;
+                gameBoard.appendChild(piece);
+                updatePiecePosition(piece, player.position, index);
+            });
+        }
+        
+        // Atualiza a posição visual da peça
+        function updatePiecePosition(piece, position, playerIndex) {
+            const targetSpace = game.spaces[position].element;
+            const targetRect = targetSpace.getBoundingClientRect();
+            const boardRect = gameBoard.getBoundingClientRect();
+            
+            const playerOffset = (playerIndex % 4) * 5; // Offset para evitar sobreposição
+            
+            const pieceX = targetRect.left - boardRect.left + (targetRect.width / 2) + playerOffset - 10;
+            const pieceY = targetRect.top - boardRect.top + (targetRect.height / 2) + playerOffset - 10;
+            
+            piece.style.left = `${pieceX}px`;
+            piece.style.top = `${pieceY}px`;
+            piece.style.transform = `translate(-50%, -50%)`;
+        }
+
+        // Inicia o turno do jogador atual
+        async function playTurn() {
+            const currentPlayer = game.players[game.currentPlayerIndex];
+            rollDiceBtn.disabled = true;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            rollDice();
+        }
+
+        // Lança o dado e move o jogador
+        function rollDice() {
+            const roll = Math.floor(Math.random() * 6) + 1;
+            diceResultDiv.textContent = roll;
+            const currentPlayer = game.players[game.currentPlayerIndex];
+            const oldPosition = currentPlayer.position;
+            const newPosition = Math.min(oldPosition + roll, game.boardSize - 1);
+            
+            addLogEntry(`${currentPlayer.name} rolou ${roll} e se moveu para a casa ${newPosition + 1}.`);
+            
+            movePiece(currentPlayer, oldPosition, newPosition);
+        }
+
+        // Anima o movimento da peça no tabuleiro
+        async function movePiece(player, oldPos, newPos) {
+            const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+            for (let i = oldPos + 1; i <= newPos; i++) {
+                updatePiecePosition(piece, i, game.players.indexOf(player));
+                player.position = i;
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            
+            // Lida com a casa onde o jogador parou
+            await handleSpaceEvent(player);
+
+            // Verifica a vitória e passa a vez
+            checkWinCondition(player);
+            endTurn();
+        }
+        
+        // Lida com eventos de desafio, bônus, mini-boss e boss
+        async function handleSpaceEvent(player) {
+            const spaceType = game.spaces[player.position].type;
+            
+            const playersOnSpace = game.players.filter(p => p.position === player.position && p !== player);
+
+            // Lógica para Boss
+            if (spaceType === 'boss') {
+                // Checa se já há um jogador esperando pelo boss
+                if (playerWaitingForBoss) {
+                    await showBossConflict([playerWaitingForBoss, player]);
+                    playerWaitingForBoss = null;
+                } else {
+                    // Se for o primeiro, deve escolher (ou a IA decide)
+                    await handleBossChoice(player);
+                }
+                return;
+            }
+
+            // Lógica para Mini-Boss
+            if (spaceType === 'mini-boss') {
+                await showMiniBossConflict(player, game.currentMapTheme.miniBoss);
+                return;
+            }
+
+            // Lógica para conflito de jogador
+            if (playersOnSpace.length > 0 && player.position !== 0) {
+                const opponent = playersOnSpace[0];
+                await showPlayerConflict(player, opponent);
+                return;
+            }
+
+            // Lógica de bônus e desafio
+            if (spaceType === 'bonus') {
+                const randomBonus = game.currentMapTheme.bonusStories[Math.floor(Math.random() * game.currentMapTheme.bonusStories.length)];
+                
+                // Jogadores e IA ganham troféu
+                player.trophies++;
+                checkPromotion(player);
+
+                addLogEntry(`${player.name} pousou em uma casa de Bônus. ${randomBonus.text}`);
+                if (randomBonus.steps > 0) {
+                    const newPos = Math.min(player.position + randomBonus.steps, game.boardSize - 1);
+                    player.position = newPos;
+                    const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+                    updatePiecePosition(piece, player.position, game.players.indexOf(player));
+                }
+                
+                if (!player.isAI) {
+                    showCard({ title: 'Bônus!', description: randomBonus.text });
+                }
+            } else if (spaceType === 'challenge') {
+                const randomChallenge = game.currentMapTheme.challengeStories[Math.floor(Math.random() * game.currentMapTheme.challengeStories.length)];
+                addLogEntry(`${player.name} pousou em uma casa de Desafio. ${randomChallenge.text}`);
+                player.position = Math.max(0, player.position - randomChallenge.steps);
+                const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+                updatePiecePosition(piece, player.position, game.players.indexOf(player));
+                if (!player.isAI) {
+                    showCard({ title: 'Desafio!', description: randomChallenge.text });
+                }
+            }
+        }
+        
+        // Mostra o cartão de evento com animação e temporizador
+        function showCard(info) {
+            cardTitle.textContent = info.title;
+            cardDescription.textContent = info.description;
+            cardPopup.classList.remove('hidden');
+            rollDiceBtn.disabled = true;
+            
+            // Fecha a carta após 3 segundos
+            setTimeout(() => {
+                cardPopup.classList.add('hidden');
+                rollDiceBtn.disabled = false;
+            }, 3000);
+        }
+
+        // Lida com a promoção de classe
+        function checkPromotion(player) {
+            if (player.trophies >= game.promotionTrophies && !player.isPromoted) {
+                const promotedName = player.baseClass.promoted;
+                const promotedStats = game.promotedClasses[promotedName];
+                
+                player.class = promotedName;
+                player.stats = promotedStats;
+                player.isPromoted = true;
+                player.image = promotedStats.image;
+
+                addLogEntry(`${player.name} foi promovido a ${promotedName}!`);
+                if (!player.isAI) {
+                    showMessage(`Parabéns, ${player.name}! Você foi promovido a ${promotedName}!`, 5000);
+                }
+            }
+        }
+
+        // Lógica de decisão para IA em conflitos
+        function handleAIConflictDecision(aiPlayer, opponent) {
+            if (game.difficulty === 'easy') {
+                return 'peace';
+            } else if (game.difficulty === 'medium') {
+                return Math.random() > 0.5 ? 'conflict' : 'peace';
+            } else if (game.difficulty === 'hard') {
+                const aiWins = 
+                    (aiPlayer.stats.atk > opponent.stats.atk) +
+                    (aiPlayer.stats.def > opponent.stats.def) +
+                    (aiPlayer.stats.mana > opponent.stats.mana);
+                
+                if (aiWins >= 2) {
+                    return 'conflict';
+                } else {
+                    return 'peace';
+                }
+            }
+        }
+
+        // Mostra a tela de conflito entre jogadores
+        function showPlayerConflict(player, opponent) {
+            return new Promise(resolve => {
+                conflictScreen.classList.remove('hidden');
+                document.getElementById('conflict-player-card').style.display = 'block';
+                document.getElementById('conflict-opponent-card').style.display = 'block';
+                conflictTitle.textContent = `Conflito - ${player.name} VS ${opponent.name}`;
+                
+                document.getElementById('conflict-player-img').src = player.image;
+                document.getElementById('conflict-player-img').alt = `Imagem de ${player.name}`;
+                document.getElementById('conflict-player-name').textContent = player.name;
+                document.getElementById('conflict-player-atk').textContent = player.stats.atk;
+                document.getElementById('conflict-player-def').textContent = player.stats.def;
+                document.getElementById('conflict-player-mana').textContent = player.stats.mana;
+
+                document.getElementById('conflict-opponent-img').src = opponent.image;
+                document.getElementById('conflict-opponent-img').alt = `Imagem de ${opponent.name}`;
+                document.getElementById('conflict-opponent-name').textContent = opponent.name;
+                document.getElementById('conflict-opponent-atk').textContent = opponent.stats.atk;
+                document.getElementById('conflict-opponent-def').textContent = opponent.stats.def;
+                document.getElementById('conflict-opponent-mana').textContent = opponent.stats.mana;
+                
+                document.getElementById('conflict-result').textContent = '';
+                closeConflictBtn.classList.add('hidden');
+                
+                const closeConflict = () => {
+                    hideConflictScreen();
+                    resolve();
+                };
+
+                if (player.isAI) {
+                    document.getElementById('conflict-buttons').classList.add('hidden');
+                    const decision = handleAIConflictDecision(player, opponent);
+                    if (decision === 'peace') {
+                        document.getElementById('conflict-result').textContent = `${player.name} (IA) escolheu a paz com ${opponent.name}.`;
+                    } else {
+                        const playerWins = 
+                            (player.stats.atk > opponent.stats.atk) +
+                            (player.stats.def > opponent.stats.def) +
+                            (player.stats.mana > opponent.stats.mana);
+                        
+                        const opponentWins = 
+                            (opponent.stats.atk > player.stats.atk) +
+                            (opponent.stats.def > player.stats.def) +
+                            (opponent.stats.mana > player.stats.mana);
+
+                        if (playerWins >= 2) {
+                            document.getElementById('conflict-result').textContent = `${player.name} venceu! ${opponent.name} retrocede uma casa e perde um troféu.`;
+                            opponent.position = Math.max(0, opponent.position - 1);
+                            opponent.trophies = Math.max(0, opponent.trophies - 1);
+                            player.trophies++;
+                            checkPromotion(player);
+                            const opponentPiece = document.getElementById(`player-piece-${game.players.indexOf(opponent)}`);
+                            updatePiecePosition(opponentPiece, opponent.position, game.players.indexOf(opponent));
+                        } else if (opponentWins >= 2) {
+                            document.getElementById('conflict-result').textContent = `${opponent.name} venceu! ${player.name} retrocede uma casa e perde um troféu.`;
+                            player.position = Math.max(0, player.position - 1);
+                            player.trophies = Math.max(0, player.trophies - 1);
+                            opponent.trophies++;
+                            checkPromotion(opponent);
+                            const playerPiece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+                            updatePiecePosition(playerPiece, player.position, game.players.indexOf(player));
+                        } else {
+                            document.getElementById('conflict-result').textContent = 'Empate! Ninguém se move ou perde/ganha troféus.';
+                        }
+                    }
+                    setTimeout(() => closeConflict(), 5000);
+                } else {
+                    document.getElementById('conflict-buttons').classList.remove('hidden');
+                    
+                    const timer = setTimeout(() => {
+                        document.getElementById('conflict-result').textContent = 'Tempo esgotado! Ação padrão: Paz.';
+                        peaceBtn.disabled = true;
+                        conflictBtn.disabled = true;
+                        setTimeout(() => closeConflict(), 3000);
+                    }, 10000);
+
+                    peaceBtn.onclick = () => {
+                        clearTimeout(timer);
+                        document.getElementById('conflict-result').textContent = `${player.name} escolheu a paz.`;
+                        document.getElementById('conflict-buttons').classList.add('hidden');
+                        setTimeout(() => closeConflict(), 3000);
+                    };
+
+                    conflictBtn.onclick = () => {
+                        clearTimeout(timer);
+                        const playerWins = 
+                            (player.stats.atk > opponent.stats.atk) +
+                            (player.stats.def > opponent.stats.def) +
+                            (player.stats.mana > opponent.stats.mana);
+                        
+                        const opponentWins = 
+                            (opponent.stats.atk > player.stats.atk) +
+                            (opponent.stats.def > player.stats.def) +
+                            (opponent.stats.mana > player.stats.mana);
+                        
+                        if (playerWins >= 2) {
+                            document.getElementById('conflict-result').textContent = `${player.name} venceu! ${opponent.name} retrocede uma casa e perde um troféu.`;
+                            opponent.position = Math.max(0, opponent.position - 1);
+                            opponent.trophies = Math.max(0, opponent.trophies - 1);
+                            player.trophies++;
+                            checkPromotion(player);
+                            const opponentPiece = document.getElementById(`player-piece-${game.players.indexOf(opponent)}`);
+                            updatePiecePosition(opponentPiece, opponent.position, game.players.indexOf(opponent));
+                        } else if (opponentWins >= 2) {
+                            document.getElementById('conflict-result').textContent = `${opponent.name} venceu! ${player.name} retrocede uma casa e perde um troféu.`;
+                            player.position = Math.max(0, player.position - 1);
+                            player.trophies = Math.max(0, player.trophies - 1);
+                            opponent.trophies++;
+                            checkPromotion(opponent);
+                            const playerPiece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+                            updatePiecePosition(playerPiece, player.position, game.players.indexOf(player));
+                        } else {
+                            document.getElementById('conflict-result').textContent = 'Empate! Ninguém se move ou perde/ganha troféus.';
+                        }
+                        
+                        document.getElementById('conflict-buttons').classList.add('hidden');
+                        setTimeout(() => closeConflict(), 3000);
+                    };
+                }
+            });
+        }
+        
+        // Lida com a escolha do Boss (lutar ou esperar)
+        function handleBossChoice(player, choice = null) {
+            return new Promise(resolve => {
+                if (player.isAI) {
+                    // Lógica de escolha da IA
+                    const aiChoice = game.difficulty === 'hard' ? 'fight' : 'wait';
+                    if (aiChoice === 'fight') {
+                        addLogEntry(`${player.name} (IA) ousou lutar sozinho contra o Boss!`);
+                        player.position = 0; // "Morre"
+                        const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+                        updatePiecePosition(piece, player.position, game.players.indexOf(player));
+                        resolve();
+                    } else {
+                        addLogEntry(`${player.name} (IA) decidiu esperar por um aliado na casa do Boss.`);
+                        playerWaitingForBoss = player;
+                        resolve();
+                    }
+                } else {
+                    // Mostra o popup para o jogador humano
+                    bossChoicePopup.classList.remove('hidden');
+                    
+                    const handleChoice = (selectedChoice) => {
+                        bossChoicePopup.classList.add('hidden');
+                        if (selectedChoice === 'fight') {
+                            addLogEntry(`${player.name} ousou lutar sozinho contra o Boss!`);
+                            player.position = 0; // "Morre"
+                            const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+                            updatePiecePosition(piece, player.position, game.players.indexOf(player));
+                        } else {
+                            addLogEntry(`${player.name} decidiu esperar por um aliado na casa do Boss.`);
+                            playerWaitingForBoss = player;
+                        }
+                        resolve();
+                    };
+
+                    bossFightAloneBtn.onclick = () => handleChoice('fight');
+                    bossWaitBtn.onclick = () => handleChoice('wait');
+                }
+            });
+        }
+
+        // Lida com a batalha em equipe contra o Boss final
+        async function showBossConflict(players) {
+            return new Promise(resolve => {
+                conflictScreen.classList.remove('hidden');
+                conflictTitle.textContent = `Batalha contra ${game.currentMapTheme.boss.name}!`;
+
+                // Esconde o card de oponente de conflito de jogador
+                document.getElementById('conflict-player-card').style.display = 'none';
+                document.getElementById('conflict-opponent-card').style.display = 'none';
+
+                // Adiciona o card da equipe
+                document.getElementById('conflict-details').innerHTML = `
+                    <div class="stat-card">
+                        <img class="stat-card-image" src="https://placehold.co/100x100/6a3d13/d3b482?text=Alianca" alt="Imagem de Alianca">
+                        <h4>Aliança dos Jogadores</h4>
+                        <p>Ataque: <span id="team-atk"></span></p>
+                        <p>Defesa: <span id="team-def"></span></p>
+                        <p>Estamina: <span id="team-mana"></span></p>
+                    </div>
+                    <div class="text-4xl font-bold mt-8">VS</div>
+                    <div class="stat-card">
+                        <img class="stat-card-image" src="${game.currentMapTheme.boss.image}" alt="Imagem do Boss">
+                        <h4>${game.currentMapTheme.boss.name}</h4>
+                        <p>Ataque: <span>${game.currentMapTheme.boss.stats.atk}</span></p>
+                        <p>Defesa: <span>${game.currentMapTheme.boss.stats.def}</span></p>
+                        <p>Estamina: <span>${game.currentMapTheme.boss.stats.mana}</span></p>
+                    </div>
+                `;
+
+                const combinedStats = { atk: 0, def: 0, mana: 0 };
+                players.forEach(p => {
+                    combinedStats.atk += p.stats.atk;
+                    combinedStats.def += p.stats.def;
+                    combinedStats.mana += p.stats.mana;
+                });
+
+                document.getElementById('team-atk').textContent = combinedStats.atk;
+                document.getElementById('team-def').textContent = combinedStats.def;
+                document.getElementById('team-mana').textContent = combinedStats.mana;
+
+                document.getElementById('conflict-result').textContent = 'A Batalha está prestes a começar!';
+                document.getElementById('conflict-buttons').classList.add('hidden');
+                
+                setTimeout(() => {
+                    const playersWins = 
+                        (combinedStats.atk > game.currentMapTheme.boss.stats.atk) +
+                        (combinedStats.def > game.currentMapTheme.boss.stats.def) +
+                        (combinedStats.mana > game.currentMapTheme.boss.stats.mana);
+                    
+                    if (playersWins >= 2) {
+                        document.getElementById('conflict-result').textContent = `A aliança venceu o ${game.currentMapTheme.boss.name}!`;
+                        addLogEntry(`A aliança de ${players.map(p => p.name).join(' e ')} venceu o ${game.currentMapTheme.boss.name}! Todos avançam 5 casas!`);
+                        players.forEach(p => {
+                            p.position = Math.min(p.position + 5, game.boardSize - 1);
+                            const piece = document.getElementById(`player-piece-${game.players.indexOf(p)}`);
+                            updatePiecePosition(piece, p.position, game.players.indexOf(p));
+                        });
+                    } else {
+                        document.getElementById('conflict-result').textContent = `A aliança falhou em derrotar o ${game.currentMapTheme.boss.name}!`;
+                        addLogEntry(`A aliança de ${players.map(p => p.name).join(' e ')} falhou. Todos retrocedem 15 casas!`);
+                        players.forEach(p => {
+                            p.position = Math.max(0, p.position - 15);
+                            const piece = document.getElementById(`player-piece-${game.players.indexOf(p)}`);
+                            updatePiecePosition(piece, p.position, game.players.indexOf(p));
+                        });
+                    }
+
+                    setTimeout(() => {
+                        hideConflictScreen();
+                        resolve();
+                    }, 6000);
+                }, 3000);
+            });
+        }
+        
+        // Lida com a batalha contra um Mini-Boss
+        async function showMiniBossConflict(player, miniBoss) {
+            return new Promise(resolve => {
+                conflictScreen.classList.remove('hidden');
+                document.getElementById('conflict-player-card').style.display = 'block';
+                document.getElementById('conflict-opponent-card').style.display = 'block';
+                conflictTitle.textContent = `Batalha contra o Mini-Boss: ${miniBoss.name}!`;
+                document.getElementById('conflict-buttons').classList.add('hidden');
+
+                document.getElementById('conflict-player-img').src = player.image;
+                document.getElementById('conflict-player-img').alt = `Imagem de ${player.name}`;
+                document.getElementById('conflict-player-name').textContent = player.name;
+                document.getElementById('conflict-player-atk').textContent = player.stats.atk;
+                document.getElementById('conflict-player-def').textContent = player.stats.def;
+                document.getElementById('conflict-player-mana').textContent = player.stats.mana;
+                
+                document.getElementById('conflict-opponent-img').src = miniBoss.image;
+                document.getElementById('conflict-opponent-img').alt = `Imagem do ${miniBoss.name}`;
+                document.getElementById('conflict-opponent-name').textContent = miniBoss.name;
+                document.getElementById('conflict-opponent-atk').textContent = miniBoss.stats.atk;
+                document.getElementById('conflict-opponent-def').textContent = miniBoss.stats.def;
+                document.getElementById('conflict-opponent-mana').textContent = miniBoss.stats.mana;
+                
+                setTimeout(() => {
+                    const playerWins = 
+                        (player.stats.atk > miniBoss.stats.atk) +
+                        (player.stats.def > miniBoss.stats.def) +
+                        (player.stats.mana > miniBoss.stats.mana);
+                    
+                    if (playerWins >= 2) {
+                        document.getElementById('conflict-result').textContent = `Você venceu o Mini-Boss! Avance 3 casas.`;
+                        player.position = Math.min(player.position + 3, game.boardSize - 1);
+                        const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+                        updatePiecePosition(piece, player.position, game.players.indexOf(player));
+                    } else {
+                        document.getElementById('conflict-result').textContent = `Você foi derrotado! Retroceda 5 casas.`;
+                        player.position = Math.max(0, player.position - 5);
+                        const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+                        updatePiecePosition(piece, player.position, game.players.indexOf(player));
+                    }
+                    setTimeout(() => {
+                        hideConflictScreen();
+                        resolve();
+                    }, 5000);
+                }, 3000);
+            });
+        }
+
+
+        // Esconde a tela de conflito
+        function hideConflictScreen() {
+            conflictScreen.classList.add('hidden');
+            rollDiceBtn.disabled = false;
+        }
+
+        // Verifica se o jogador venceu
+        function checkWinCondition(player) {
+            if (player.position === game.boardSize - 1) {
+                document.getElementById('winner-name').textContent = `${player.name} venceu a queda dos reinos!`;
+                showScreen('win');
+            }
+        }
+
+        // Finaliza o turno e passa a vez
+        function endTurn() {
+            game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
+            updateDisplay();
+            
+            // Lógica para IAs
+            const currentPlayer = game.players[game.currentPlayerIndex];
+            if (currentPlayer.isAI) {
+                rollDiceBtn.disabled = true;
+                setTimeout(() => playTurn(), 2000); // Dá um tempo para o jogador ler a mensagem
+            } else {
+                rollDiceBtn.disabled = false;
+            }
+        }
+
+        // Atualiza as informações na tela
+        function updateDisplay() {
+            const currentPlayer = game.players[game.currentPlayerIndex];
+            turnInfo.textContent = `Vez de: ${currentPlayer.name}`;
+            
+            // Renderiza a lista de jogadores e seus troféus
+            const playerListDiv = document.getElementById('player-list');
+            playerListDiv.innerHTML = game.players.map(p => {
+                const isCurrent = p.name === currentPlayer.name ? 'font-bold' : '';
+                return `<div class="${isCurrent}">${p.name} (${p.class}): ${p.trophies} Troféus</div>`;
+            }).join('');
+        }
+        
+        // Inicia o jogo ao carregar a página
+        window.onload = function() {
+            createPlayerSetup();
+            showScreen('main');
+        };
+
+        window.addEventListener('resize', () => {
+            if (gameScreen.style.display !== 'none') {
+                createBoard();
+                renderPlayers();
+            }
+        });
+    </script>
+</body>
+</html>
