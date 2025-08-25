@@ -1,0 +1,328 @@
+
+        /* Estilos personalizados para o tema medieval */
+        body {
+            font-family: 'MedievalSharp', cursive;
+            background: linear-gradient(135deg, #1f1f1f, #333333);
+            color: #d3b482;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Estilos de tela */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Efeitos visuais para botões e elementos interativos */
+        .btn {
+            background-color: #6a3d13;
+            color: #fff;
+            padding: 0.75rem 2rem;
+            border: 3px solid #d3b482;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            font-size: 1.25rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #8c5b2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.6);
+        }
+        
+        .btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            border-color: #888;
+        }
+
+        .card-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .card {
+            background: rgba(211, 180, 130, 0.9);
+            border: 5px solid #6a3d13;
+            color: #1f1f1f;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 400px;
+            height: auto;
+            position: relative;
+            text-align: center;
+        }
+
+        .view-icon {
+            cursor: pointer;
+            font-size: 1.25rem;
+            margin-left: 0.5rem;
+            color: #d3b482;
+        }
+
+        /* Estilo da tela principal */
+        .menu-panel {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 3rem;
+            border-radius: 2rem;
+            border: 4px solid #d3b482;
+            box-shadow: inset 0 0 20px #d3b482, 0 0 40px rgba(211, 180, 130, 0.5);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        #rules-screen {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 2px solid #d3b482;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Estilo para o tabuleiro */
+        #game-board-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            gap: 1rem;
+        }
+
+        @media (min-width: 1024px) {
+            #game-board-container {
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 2rem;
+            }
+        }
+
+        #game-board {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            border: 8px solid #6a3d13;
+            padding: 10px;
+            border-radius: 1rem;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.6);
+            flex-shrink: 0;
+            max-width: 95vw;
+            max-height: 95vw;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 1s ease-in-out;
+        }
+        
+        /* Classes para os mapas */
+        #game-board.map-floresta { background-image: url('img/img_Mapas/floresta.png'); }
+        #game-board.map-masmorra { background-image: url('img/img_Mapas/masmorra.png'); }
+        #game-board.map-planicie { background-image: url('https://placehold.co/600x600/8B4513/fff?text=Planicie'); }
+        #game-board.map-castelo { background-image: url('https://placehold.co/600x600/708090/fff?text=Castelo'); }
+        #game-board.map-pantano { background-image: url('https://placehold.co/600x600/4B5320/fff?text=Pantano'); }
+        #game-board.map-deserto { background-image: url('https://placehold.co/600x600/F4A460/fff?text=Deserto'); }
+
+        @media (max-width: 768px) {
+            #game-board {
+                width: 95vw;
+                height: 95vw;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .menu-panel h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+
+        .board-space {
+            background: rgba(211, 180, 130, 0.8);
+            border: 2px solid #6a3d13;
+            border-radius: 0.5rem;
+            padding: 5px;
+            text-align: center;
+            font-size: 0.75rem;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease-in-out;
+        }
+        
+        /* Cores base para as casas */
+        .challenge-space { background-color: #b22222; }
+        .bonus-space { background-color: #228b22; }
+        .dragon-space { background-color: #8b0000; }
+        .mini-boss-space { background-color: #FFA500; }
+
+        .player-piece {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: all 0.5s ease-in-out;
+            z-index: 10;
+        }
+        
+        .stat-card-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #d3b482;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+
+
+        #log-panel {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #d3b482;
+            border-radius: 1rem;
+            padding: 1rem;
+            width: 300px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #d3b482 #4a2f1b;
+        }
+
+        @media (max-width: 1023px) {
+            #log-panel {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 90vw;
+                height: 70vh;
+                z-index: 200;
+            }
+        }
+
+        #log-panel div {
+            padding: 0.5rem;
+            background: rgba(211, 180, 130, 0.1);
+            border-radius: 0.5rem;
+        }
+
+        .stat-card {
+            background: #6a3d13;
+            border: 2px solid #d3b482;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .stat-card h4 { font-size: 1.25rem; font-weight: bold; }
+        .stat-card p { margin: 0; }
+
+        /* --- Estilos do Dado 3D --- */
+        .dice-container {
+            width: 50px;
+            height: 50px;
+            perspective: 1000px;
+        }
+
+        .dice {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.5s ease-out;
+        }
+
+        .dice.rolling {
+            animation: roll-dice 1.5s ease-out forwards;
+        }
+
+        .dice-face {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #d3b482;
+            background-color: #6a3d13;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+            background-image: url('https://placehold.co/50x50/6a3d13/d3b482?text='); /* Fundo base */
+        }
+
+        .face-1 { background-image: url('https://placehold.co/50x50/6a3d13/ffffff?text=1'); }
+        .face-2 { background-image: url('https://placehold.co/50x50/6a3d13/ffffff?text=2'); }
+        .face-3 { background-image: url('https://placehold.co/50x50/6a3d13/ffffff?text=3'); }
+        .face-4 { background-image: url('https://placehold.co/50x50/6a3d13/ffffff?text=4'); }
+        .face-5 { background-image: url('https://placehold.co/50x50/6a3d13/ffffff?text=5'); }
+        .face-6 { background-image: url('https://placehold.co/50x50/6a3d13/ffffff?text=6'); }
+
+        .front  { transform: rotateY(  0deg) translateZ(25px); }
+        .back   { transform: rotateY(180deg) translateZ(25px); }
+        .right  { transform: rotateY( 90deg) translateZ(25px); }
+        .left   { transform: rotateY(-90deg) translateZ(25px); }
+        .top    { transform: rotateX( 90deg) translateZ(25px); }
+        .bottom { transform: rotateX(-90deg) translateZ(25px); }
+
+        @keyframes roll-dice {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(720deg) rotateY(1080deg) rotateZ(360deg); }
+        }
+
+        .dice.show-face-1 { transform: rotateY(0deg); }
+        .dice.show-face-6 { transform: rotateY(-180deg); }
+        .dice.show-face-4 { transform: rotateY(-90deg); }
+        .dice.show-face-3 { transform: rotateY(90deg); }
+        .dice.show-face-5 { transform: rotateX(-90deg); }
+        .dice.show-face-2 { transform: rotateX(90deg); }
