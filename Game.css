@@ -1,5 +1,4 @@
-
-        /* Estilos personalizados para o tema medieval */
+/* Estilos personalizados para o tema medieval */
         body {
             font-family: 'MedievalSharp', cursive;
             background: linear-gradient(135deg, #1f1f1f, #333333);
@@ -76,7 +75,7 @@
             padding: 2rem;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             width: 90%;
-            max-width: 400px;
+            max-width: 500px; /* Aumentado para acomodar imagens maiores */
             height: auto;
             position: relative;
             text-align: center;
@@ -89,7 +88,7 @@
             color: #d3b482;
         }
 
-        /* Estilo da tela principal */
+        /* Estilo da tela principal e placar */
         .menu-panel {
             background: rgba(0, 0, 0, 0.7);
             padding: 3rem;
@@ -101,6 +100,14 @@
             flex-direction: column;
             align-items: center;
             gap: 2rem;
+        }
+
+        #scoreboard-list div {
+            padding: 0.5rem 1rem;
+            border: 2px solid #d3b482;
+            border-radius: 1rem;
+            background: rgba(0,0,0,0.3);
+            width: 100%;
         }
         
         #rules-screen {
@@ -117,6 +124,12 @@
             max-height: 80vh;
             overflow-y: auto;
             backdrop-filter: blur(5px);
+        }
+        
+        /* Ajuste na tela de conflito para telas pequenas */
+        #conflict-screen .max-w-lg {
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         /* Estilo para o tabuleiro */
@@ -175,25 +188,29 @@
             }
         }
 
-
         .board-space {
             background: rgba(211, 180, 130, 0.8);
             border: 2px solid #6a3d13;
             border-radius: 0.5rem;
+            color: white; /* Cor do texto para melhor contraste com imagens */
+            text-shadow: 1px 1px 2px black, 0 0 1em black, 0 0 0.2em black; /* Sombra para legibilidade */
             padding: 5px;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 1rem; /* Aumenta o número da casa */
+            font-weight: bold;
             box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.5s ease-in-out;
+            background-size: cover; /* Para as imagens de desafio/bonus */
+            background-position: center;
         }
         
-        /* Cores base para as casas */
+        /* Cores base para as casas (mantidas como fallback) */
         .challenge-space { background-color: #b22222; }
         .bonus-space { background-color: #228b22; }
         .dragon-space { background-color: #8b0000; }
@@ -208,17 +225,33 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.5);
             transition: all 0.5s ease-in-out;
             z-index: 10;
+            font-size: 18px; /* Ajusta o tamanho do emoji */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .stat-card-image {
-            width: 100px;
-            height: 100px;
+            width: 140px; /* AUMENTADO */
+            height: 140px; /* AUMENTADO */
             border-radius: 50%;
             border: 3px solid #d3b482;
             object-fit: cover;
             margin-bottom: 1rem;
         }
 
+        /* Container para as imagens da aliança */
+        .alliance-image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem; /* Espaço entre as imagens */
+        }
+        
+        .alliance-image-container .stat-card-image {
+            width: 100px; /* Imagens menores para caber lado a lado */
+            height: 100px;
+        }
 
         #log-panel {
             background: rgba(0, 0, 0, 0.7);

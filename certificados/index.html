@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Certificados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .campo {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="file"], input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #certificado-area {
+            display: none; /* Inicia escondido */
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #preview-iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="upload-form">
+        <h1>Selecione o Modelo do Certificado</h1>
+        <div class="campo">
+            <label for="modelo-file">Escolha seu arquivo de modelo (.html):</label>
+            <input type="file" id="modelo-file" accept=".html" required>
+        </div>
+        <button id="carregar-modelo">Carregar Modelo</button>
+    </div>
+
+    <div class="container" id="data-form" style="display:none;">
+        <h1>Preencha os Dados do Certificado</h1>
+        <form id="form-dados">
+            <div class="campo">
+                <label for="nome">Nome Completo:</label>
+                <input type="text" id="nome" required>
+            </div>
+            <div class="campo">
+                <label for="curso">Nome do Curso:</label>
+                <input type="text" id="curso" required>
+            </div>
+            <div class="campo">
+                <label for="modulos">Módulos Concluídos:</label>
+                <textarea id="modulos" rows="4" required></textarea>
+            </div>
+            <div class="campo">
+                <label for="nota">Nota Final:</label>
+                <input type="number" id="nota" step="0.01" min="0" max="100" required>
+            </div>
+            <div class="campo">
+                <label for="cargaHoraria">Carga Horária (horas):</label>
+                <input type="number" id="cargaHoraria" min="1" required>
+            </div>
+            <button type="submit">Gerar Certificado</button>
+        </form>
+    </div>
+
+    <div id="certificado-area">
+        <iframe id="preview-iframe"></iframe>
+        <button id="btn-baixar">Baixar PDF</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        let modeloHtml = '';
+
+        document.getElementById('carregar-modelo').addEventListener('click', function() {
+            const fileInput = document.getElementById('modelo-file');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    modeloHtml = e.target.result;
+                    document.getElementById('upload-form').style.display = 'none';
+                    document.getElementById('data-form').style.display = 'block';
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Por favor, selecione um arquivo de modelo (.html).');
+            }
+        });
+
+        document.getElementById('form-dados').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // 1. Clonar o modelo HTML carregado para preencher os dados
+            const doc = new DOMParser().parseFromString(modeloHtml, 'text/html');
+
+            // 2. Preencher os campos com base nos dados do formulário
+            doc.getElementById('nome-aluno').textContent = document.getElementById('nome').value;
+            doc.getElementById('nome-curso').textContent = document.getElementById('curso').value;
+            doc.getElementById('modulos-concluidos').textContent = document.getElementById('modulos').value;
+            doc.getElementById('nota-final').textContent = document.getElementById('nota').value;
+            doc.getElementById('carga-horaria').textContent = document.getElementById('cargaHoraria').value;
+
+            // 3. Gerar o HTML final com os dados preenchidos
+            const htmlCompleto = `
+                <html>
+                <head>
+                    <style>${doc.querySelector('style').innerHTML}</style>
+                </head>
+                <body>
+                    ${doc.body.innerHTML}
+                </body>
+                </html>
+            `;
+            
+            // 4. Exibir no iframe para visualização
+            const iframe = document.getElementById('preview-iframe');
+            iframe.contentDocument.open();
+            iframe.contentDocument.write(htmlCompleto);
+            iframe.contentDocument.close();
+            
+            // 5. Mostrar a área do certificado
+            document.getElementById('data-form').style.display = 'none';
+            document.getElementById('certificado-area').style.display = 'flex';
+        });
+
+        document.getElementById('btn-baixar').addEventListener('click', function() {
+            const iframeContent = document.getElementById('preview-iframe').contentWindow.document.documentElement;
+            html2pdf(iframeContent, {
+                margin: 10,
+                filename: 'certificado.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            });
+        });
+    </script>
+</body>
+</html>

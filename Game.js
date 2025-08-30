@@ -1,4 +1,4 @@
-        // --- Variáveis Globais ---
+// --- Variáveis Globais ---
         const game = {
             players: [],
             currentPlayerIndex: 0,
@@ -11,24 +11,24 @@
             selectedMap: 'floresta',
             currentMapTheme: {},
             classes: [
-                { name: 'Espadachim', emoji: '⚔️', stats: { atk: 6, def: 8, mana: 4 }, promoted: 'Cavaleiro', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Espadachim' },
-                { name: 'Mago', emoji: '🧙‍♂️', stats: { atk: 5, def: 5, mana: 10 }, promoted: 'Arquimago', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Mago' },
-                { name: 'Bruxo', emoji: '🔮', stats: { atk: 7, def: 5, mana: 8 }, promoted: 'Necromante', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Bruxo' },
-                { name: 'Arqueiro', emoji: '🏹', stats: { atk: 9, def: 4, mana: 5 }, promoted: 'Atirador', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Arqueiro' },
-                { name: 'Escudeiro', emoji: '🛡️', stats: { atk: 4, def: 10, mana: 6 }, promoted: 'Cruzado', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Escudeiro' },
-                { name: 'Druida', emoji: '🌿', stats: { atk: 5, def: 7, mana: 8 }, promoted: 'Sábio da Natureza', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Druida' },
-                { name: 'Bardo', emoji: '🎵', stats: { atk: 6, def: 6, mana: 8 }, promoted: 'Maestro', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Bardo' },
-                { name: 'Bárbaro', emoji: '🪓', stats: { atk: 10, def: 5, mana: 5 }, promoted: 'Berserker', image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Bárbaro' }
+                { name: 'Espadachim', emoji: '⚔️', stats: { atk: 6, def: 8, mana: 4 }, promoted: 'Cavaleiro', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Espadachim' },
+                { name: 'Mago', emoji: '🧙‍♂️', stats: { atk: 5, def: 5, mana: 10 }, promoted: 'Arquimago', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Mago' },
+                { name: 'Bruxo', emoji: '🔮', stats: { atk: 7, def: 5, mana: 8 }, promoted: 'Necromante', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Bruxo' },
+                { name: 'Arqueiro', emoji: '🏹', stats: { atk: 9, def: 4, mana: 5 }, promoted: 'Atirador', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Arqueiro' },
+                { name: 'Escudeiro', emoji: '🛡️', stats: { atk: 4, def: 10, mana: 6 }, promoted: 'Cruzado', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Escudeiro' },
+                { name: 'Druida', emoji: '🌿', stats: { atk: 5, def: 7, mana: 8 }, promoted: 'Sábio da Natureza', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Druida' },
+                { name: 'Bardo', emoji: '🎵', stats: { atk: 6, def: 6, mana: 8 }, promoted: 'Maestro', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Bardo' },
+                { name: 'Bárbaro', emoji: '🪓', stats: { atk: 10, def: 5, mana: 5 }, promoted: 'Berserker', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Bárbaro' }
             ],
             promotedClasses: {
-                'Cavaleiro': { name: 'Cavaleiro', atk: 12, def: 16, mana: 8, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Cavaleiro' },
-                'Arquimago': { name: 'Arquimago', atk: 10, def: 10, mana: 20, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Arquimago' },
-                'Necromante': { name: 'Necromante', atk: 14, def: 10, mana: 16, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Necromante' },
-                'Atirador': { name: 'Atirador', atk: 18, def: 8, mana: 10, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Atirador' },
-                'Cruzado': { name: 'Cruzado', atk: 8, def: 20, mana: 12, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Cruzado' },
-                'Sábio da Natureza': { name: 'Sábio da Natureza', atk: 10, def: 14, mana: 16, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Sabio' },
-                'Maestro': { name: 'Maestro', atk: 12, def: 12, mana: 16, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Maestro' },
-                'Berserker': { name: 'Berserker', atk: 20, def: 10, mana: 10, image: 'https://placehold.co/100x100/6a3d13/d3b482?text=Berserker' }
+                'Cavaleiro': { name: 'Cavaleiro', atk: 12, def: 16, mana: 8, image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Cavaleiro' },
+                'Arquimago': { name: 'Arquimago', atk: 10, def: 10, mana: 20, image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Arquimago' },
+                'Necromante': { name: 'Necromante', atk: 14, def: 10, mana: 16, image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Necromante' },
+                'Atirador': { name: 'Atirador', atk: 18, def: 8, mana: 10, image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Atirador' },
+                'Cruzado': { name: 'Cruzado', atk: 8, def: 20, mana: 12, image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Cruzado' },
+                'Sábio da Natureza': { name: 'Sábio da Natureza', atk: 10, def: 14, mana: 16, image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Sabio' },
+                'Maestro': { name: 'Maestro', atk: 12, def: 12, mana: 16, image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Maestro' },
+                'Berserker': { name: 'Berserker', atk: 20, def: 10, mana: 10, image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Berserker' }
             },
             mapThemes: {
                 floresta: {
@@ -43,7 +43,11 @@
                         { text: "Você encontrou um Gnomo Mágico. Ele te deu um Troféu e você avança!", steps: 2, image: 'https://placehold.co/300x200/228b22/fff?text=Gnomo' },
                         { text: "Um riacho de águas cristalinas restaurou suas energias. Avance 2 casas!", steps: 2, image: 'https://placehold.co/300x200/228b22/fff?text=Riacho' },
                         { text: "Um tesouro de um aventureiro perdido. Avance 3 casas!", steps: 3, image: 'https://placehold.co/300x200/228b22/fff?text=Tesouro' }
-                    ]
+                    ],
+                    // Imagens para as casas do tabuleiro
+                    bonusImage: "url('https://placehold.co/50x50/228b22/FFFFFF?text=B')",
+                    challengeImage: "url('https://placehold.co/50x50/b22222/FFFFFF?text=D')",
+                    bossImage: "url('https://placehold.co/50x50/8b0000/FFFFFF?text=BOSS')"
                 },
                 masmorra: {
                     boss: { name: "O Lich Supremo", emoji: "💀", stats: { atk: 18, def: 12, mana: 18 }, image: 'https://placehold.co/100x100/000000/fff?text=Lich' },
@@ -57,7 +61,10 @@
                         { text: "Você encontrou um baú de tesouro com um Troféu!", steps: 0, image: 'https://placehold.co/300x200/228b22/fff?text=Bau' },
                         { text: "Um fantasma amigável te guia para um atalho. Avance 3 casas!", steps: 3, image: 'https://placehold.co/300x200/228b22/fff?text=Fantasma' },
                         { text: "Você achou uma poção de velocidade. Avance 2 casas!", steps: 2, image: 'https://placehold.co/300x200/228b22/fff?text=Pocao' }
-                    ]
+                    ],
+                    bonusImage: "url('https://placehold.co/50x50/228b22/FFFFFF?text=B')",
+                    challengeImage: "url('https://placehold.co/50x50/b22222/FFFFFF?text=D')",
+                    bossImage: "url('https://placehold.co/50x50/8b0000/FFFFFF?text=BOSS')"
                 },
                 planicie: {
                     boss: { name: "O Gigante da Terra", emoji: "🗿", stats: { atk: 20, def: 20, mana: 5 }, image: 'https://placehold.co/100x100/708090/fff?text=Gigante' },
@@ -71,7 +78,10 @@
                         { text: "Você achou um cristal de mana. Ganhe um Troféu!", steps: 0, image: 'https://placehold.co/300x200/228b22/fff?text=Cristal' },
                         { text: "Uma caravana te dá uma carona. Avance 4 casas!", steps: 4, image: 'https://placehold.co/300x200/228b22/fff?text=Caravana' },
                         { text: "Você foi abençoado pelos deuses. Avance 2 casas!", steps: 2, image: 'https://placehold.co/300x200/228b22/fff?text=Bencao' }
-                    ]
+                    ],
+                    bonusImage: "url('https://placehold.co/50x50/228b22/FFFFFF?text=B')",
+                    challengeImage: "url('https://placehold.co/50x50/b22222/FFFFFF?text=D')",
+                    bossImage: "url('https://placehold.co/50x50/8b0000/FFFFFF?text=BOSS')"
                 },
                 castelo: {
                     boss: { name: "O Rei Sanguinário", emoji: "👑", stats: { atk: 16, def: 18, mana: 10 }, image: 'https://placehold.co/100x100/8b0000/fff?text=Rei' },
@@ -85,7 +95,10 @@
                         { text: "Você foi reconhecido como um herói e ganhou um Troféu!", steps: 0, image: 'https://placehold.co/300x200/228b22/fff?text=Heroi' },
                         { text: "Uma passagem secreta te leva a um atalho. Avance 3 casas!", steps: 3, image: 'https://placehold.co/300x200/228b22/fff?text=Passagem' },
                         { text: "Você encontrou uma armadura lendária. Avance 2 casas!", steps: 2, image: 'https://placehold.co/300x200/228b22/fff?text=Armadura' }
-                    ]
+                    ],
+                    bonusImage: "url('https://placehold.co/50x50/228b22/FFFFFF?text=B')",
+                    challengeImage: "url('https://placehold.co/50x50/b22222/FFFFFF?text=D')",
+                    bossImage: "url('https://placehold.co/50x50/8b0000/FFFFFF?text=BOSS')"
                 },
                 pantano: {
                     boss: { name: "A Sereia Maldita", emoji: "🧜‍♀️", stats: { atk: 10, def: 10, mana: 20 }, image: 'https://placehold.co/100x100/4B5320/fff?text=Sereia' },
@@ -99,7 +112,10 @@
                         { text: "Você encontrou um cogumelo mágico que te dá um Troféu!", steps: 0, image: 'https://placehold.co/300x200/228b22/fff?text=Cogumelo' },
                         { text: "Uma tartaruga sábia te leva em suas costas. Avance 3 casas!", steps: 3, image: 'https://placehold.co/300x200/228b22/fff?text=Tartaruga' },
                         { text: "Você encontrou um cajado ancestral. Avance 2 casas!", steps: 2, image: 'https://placehold.co/300x200/228b22/fff?text=Cajado' }
-                    ]
+                    ],
+                    bonusImage: "url('https://placehold.co/50x50/228b22/FFFFFF?text=B')",
+                    challengeImage: "url('https://placehold.co/50x50/b22222/FFFFFF?text=D')",
+                    bossImage: "url('https://placehold.co/50x50/8b0000/FFFFFF?text=BOSS')"
                 },
                 deserto: {
                     boss: { name: "O Sacerdote do Sol", emoji: "☀️", stats: { atk: 12, def: 12, mana: 16 }, image: 'https://placehold.co/100x100/F4A460/fff?text=Sacerdote' },
@@ -113,7 +129,10 @@
                         { text: "Você encontrou um oásis com uma fruta sagrada. Ganhe um Troféu!", steps: 0, image: 'https://placehold.co/300x200/228b22/fff?text=Oasis' },
                         { text: "Um mapa antigo te leva a um atalho. Avance 4 casas!", steps: 4, image: 'https://placehold.co/300x200/228b22/fff?text=Mapa' },
                         { text: "Você encontrou uma lâmpada mágica. Avance 2 casas!", steps: 2, image: 'https://placehold.co/300x200/228b22/fff?text=Lampada' }
-                    ]
+                    ],
+                    bonusImage: "url('https://placehold.co/50x50/228b22/FFFFFF?text=B')",
+                    challengeImage: "url('https://placehold.co/50x50/b22222/FFFFFF?text=D')",
+                    bossImage: "url('https://placehold.co/50x50/8b0000/FFFFFF?text=BOSS')"
                 }
             }
         };
@@ -170,7 +189,10 @@
         rulesBtn.addEventListener('click', () => rulesScreen.classList.remove('hidden'));
         closeRulesBtn.addEventListener('click', () => rulesScreen.classList.add('hidden'));
         closeCharacterCardBtn.addEventListener('click', () => characterCardPopup.classList.add('hidden'));
-        leaveGameBtn.addEventListener('click', () => location.reload());
+        leaveGameBtn.addEventListener('click', () => {
+            stopAllMusic();
+            location.reload();
+        });
         backToMainBtn.addEventListener('click', () => showScreen('main'));
         
         playerCountSelect.addEventListener('change', createPlayerSetup);
@@ -185,6 +207,23 @@
         closeLogBtn.addEventListener('click', () => logPanel.classList.add('hidden'));
 
 
+        // --- Funções de Música ---
+        function stopAllMusic() {
+            const audios = document.querySelectorAll('audio');
+            audios.forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+        }
+
+        function playMusic(trackId) {
+            stopAllMusic();
+            const music = document.getElementById(trackId);
+            if (music) {
+                music.play().catch(e => console.log("A reprodução de áudio foi bloqueada pelo navegador."));
+            }
+        }
+        
         // --- Funções de Lógica do Jogo ---
 
         // Alterna entre as telas do jogo
@@ -201,17 +240,29 @@
 
 
             switch (screen) {
-                case 'main': mainMenuScreen.style.display = 'flex'; break;
-                case 'setup': setupScreen.style.display = 'flex'; break;
+                case 'main': 
+                    mainMenuScreen.style.display = 'flex'; 
+                    playMusic('music-menu');
+                    break;
+                case 'setup': 
+                    setupScreen.style.display = 'flex'; 
+                    playMusic('music-menu');
+                    break;
                 case 'game': 
                     gameScreen.style.display = 'flex'; 
+                    playMusic(`music-${game.selectedMap}`);
                     // Mostra o log panel em telas maiores
                     if (window.innerWidth >= 1024) {
                         logPanel.classList.remove('hidden');
                     }
                     break;
-                case 'win': winScreen.style.display = 'flex'; break;
-                case 'conflict': conflictScreen.style.display = 'flex'; break;
+                case 'win': 
+                    winScreen.style.display = 'flex'; 
+                    stopAllMusic();
+                    break;
+                case 'conflict': 
+                    conflictScreen.style.display = 'flex'; 
+                    break;
             }
         }
 
@@ -351,12 +402,28 @@
             }
         }
         
+        // --- NOVO: Gerador de números pseudo-aleatórios com semente (para layout do tabuleiro) ---
+        function seededRandom(seed) {
+            let state = seed;
+            return function() {
+                state = (state * 9301 + 49297) % 233280;
+                return state / 233280;
+            };
+        }
+
         // Gera coordenadas para um tabuleiro de forma irregular, evitando sobreposição e mantendo dentro dos limites
         function generateIrregularPathCoords(size, width, height) {
+            // Cria uma semente a partir do nome do mapa para ter um layout consistente
+            let seed = 0;
+            for (let i = 0; i < game.selectedMap.length; i++) {
+                seed += game.selectedMap.charCodeAt(i);
+            }
+            const random = seededRandom(seed);
+
             const coords = [];
             const spaceSize = 45;
             const minDistance = spaceSize * 0.8;
-            const padding = 5; // Um pequeno buffer da borda para garantir que as casas não toquem a borda
+            const padding = 5;
 
             for (let i = 0; i < size; i++) {
                 let x, y;
@@ -370,26 +437,24 @@
                         y = padding;
                     } else {
                         const prev = coords[i - 1];
-                        let baseAngle = Math.PI / 4; // Direção inicial geral
+                        let baseAngle = Math.PI / 4;
                         if (i > 1) {
                             const prev2 = coords[i - 2];
                             baseAngle = Math.atan2(prev.y - prev2.y, prev.x - prev2.x);
                         }
                         
-                        const angleVariation = (Math.random() - 0.5) * Math.PI / 1.5;
+                        const angleVariation = (random() - 0.5) * Math.PI / 1.5;
                         const angle = baseAngle + angleVariation;
-                        const distance = minDistance + (Math.random() * 20);
+                        const distance = minDistance + (random() * 20);
 
                         x = prev.x + Math.cos(angle) * distance;
                         y = prev.y + Math.sin(angle) * distance;
                     }
 
-                    // 1. Verificação de Limites
                     if (x < padding || x > width - spaceSize - padding || y < padding || y > height - spaceSize - padding) {
-                        continue; // Posição inválida, tentar novamente
+                        continue;
                     }
 
-                    // 2. Verificação de Sobreposição
                     let isOverlapping = false;
                     for (const pos of coords) {
                         const dist = Math.sqrt(Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2));
@@ -400,12 +465,10 @@
                     }
 
                     if (!isOverlapping) {
-                        validPosition = true; // Posição válida encontrada
+                        validPosition = true;
                     }
                 }
                 
-                // Fallback: Se não encontrar uma posição válida, força a última tentativa para dentro dos limites.
-                // Isso evita que a casa saia do mapa, embora possa causar uma sobreposição em casos raros.
                 if (!validPosition) {
                     x = Math.max(padding, Math.min(x, width - spaceSize - padding));
                     y = Math.max(padding, Math.min(y, height - spaceSize - padding));
@@ -426,7 +489,7 @@
             const boardHeight = gameBoard.clientHeight;
             const spaceCoords = generateIrregularPathCoords(game.boardSize, boardWidth, boardHeight);
             
-            const spaceTypes = game.spaceTypes; // Usa os tipos de casa pré-gerados
+            const spaceTypes = game.spaceTypes;
             
             gameBoard.className = `map-${game.selectedMap}`;
             gameBoard.classList.add('rounded-xl', 'shadow-lg');
@@ -442,10 +505,13 @@
                 const type = spaceTypes[i];
                 if (type === 'bonus') {
                     space.classList.add('bonus-space');
+                    space.style.backgroundImage = game.currentMapTheme.bonusImage;
                 } else if (type === 'challenge') {
                     space.classList.add('challenge-space');
+                    space.style.backgroundImage = game.currentMapTheme.challengeImage;
                 } else if (type === 'boss') {
                     space.classList.add('dragon-space');
+                    space.style.backgroundImage = game.currentMapTheme.bossImage;
                 } else if (type === 'mini-boss') {
                     space.classList.add('mini-boss-space');
                 }
@@ -461,10 +527,8 @@
             const bonusCount = Math.floor(boardSize / 5);
             const challengeCount = Math.floor(boardSize / 7);
             
-            // Garante que a primeira e a última casa sejam normais
             const shuffledIndices = Array.from({ length: boardSize - 2 }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
 
-            // Adiciona as casas de bônus e desafio
             for (let i = 0; i < bonusCount && shuffledIndices.length > 0; i++) {
                 types[shuffledIndices.pop()] = 'bonus';
             }
@@ -472,10 +536,8 @@
                 types[shuffledIndices.pop()] = 'challenge';
             }
 
-            // Adiciona a casa do Boss
             types[shuffledIndices.pop()] = 'boss';
             
-            // Adiciona mini-bosses com base na dificuldade
             let miniBossCount = 0;
             if (game.difficulty === 'medium') {
                 miniBossCount = 1;
@@ -498,7 +560,7 @@
                     piece = document.createElement('div');
                     piece.className = 'player-piece';
                     piece.id = `player-piece-${index}`;
-                    const playerClass = game.classes.find(c => c.name === player.class);
+                    const playerClass = game.classes.find(c => c.name === player.baseClass.name);
                     piece.textContent = playerClass.emoji;
                     gameBoard.appendChild(piece);
                 }
@@ -508,10 +570,10 @@
         
         // Atualiza a posição visual da peça
         function updatePiecePosition(piece, position, playerIndex) {
-            if (!game.spaces[position] || !game.spaces[position].element) return; // Guarda contra erros de renderização
+            if (!game.spaces[position] || !game.spaces[position].element) return;
             const targetSpace = game.spaces[position].element;
             
-            const playerOffset = (playerIndex % 4) * 5; // Offset para evitar sobreposição
+            const playerOffset = (playerIndex % 4) * 5;
             
             const pieceX = targetSpace.offsetLeft + (targetSpace.offsetWidth / 2) + playerOffset;
             const pieceY = targetSpace.offsetTop + (targetSpace.offsetHeight / 2) + playerOffset;
@@ -534,8 +596,8 @@
             rollDiceBtn.disabled = true;
             diceResultDiv.textContent = '';
             const dice = document.getElementById('dice');
-            dice.className = 'dice'; // Reseta as classes
-            void dice.offsetWidth; // Força o reflow para reiniciar a animação
+            dice.className = 'dice';
+            void dice.offsetWidth;
             dice.classList.add('rolling');
 
             setTimeout(() => {
@@ -561,7 +623,7 @@
                 addLogEntry(`${currentPlayer.name} rolou ${roll} e se moveu para a casa ${newPosition + 1}.`);
                 
                 movePiece(currentPlayer, oldPosition, newPosition);
-            }, 1500); // Duração da animação
+            }, 1500);
         }
 
         // Anima o movimento da peça no tabuleiro
@@ -573,10 +635,8 @@
                 await new Promise(resolve => setTimeout(resolve, 300));
             }
             
-            // Lida com a casa onde o jogador parou
             await handleSpaceEvent(player);
 
-            // Verifica a vitória e passa a vez
             if (player.position !== game.boardSize -1) {
                 endTurn();
             } else {
@@ -590,7 +650,6 @@
             
             const playersOnSpace = game.players.filter(p => p.position === player.position && p !== player);
 
-            // Lógica para Boss
             if (spaceType === 'boss') {
                 if (playerWaitingForBoss) {
                     await showBossConflict([playerWaitingForBoss, player]);
@@ -601,20 +660,17 @@
                 return;
             }
 
-            // Lógica para Mini-Boss
             if (spaceType === 'mini-boss') {
                 await showMiniBossConflict(player, game.currentMapTheme.miniBoss);
                 return;
             }
 
-            // Lógica para conflito de jogador
             if (playersOnSpace.length > 0 && player.position !== 0) {
                 const opponent = playersOnSpace[0];
                 await showPlayerConflict(player, opponent);
                 return;
             }
 
-            // Lógica de bônus e desafio
             if (spaceType === 'bonus') {
                 const randomBonus = game.currentMapTheme.bonusStories[Math.floor(Math.random() * game.currentMapTheme.bonusStories.length)];
                 player.trophies++;
@@ -659,7 +715,6 @@
             
             setTimeout(() => {
                 cardPopup.classList.add('hidden');
-                // O botão de rolar dado será reativado na função endTurn
             }, 3000);
         }
 
@@ -846,12 +901,19 @@
                 conflictScreen.classList.remove('hidden');
                 conflictTitle.textContent = `Batalha contra ${game.currentMapTheme.boss.name}!`;
 
+                // Cria as imagens dos jogadores da aliança
+                const allianceImagesHTML = players.map(p => 
+                    `<img class="stat-card-image" src="${p.image}" alt="Imagem de ${p.name}">`
+                ).join('');
+
                 document.getElementById('conflict-player-card').style.display = 'none';
                 document.getElementById('conflict-opponent-card').style.display = 'none';
-
+                
                 document.getElementById('conflict-details').innerHTML = `
                     <div class="stat-card">
-                        <img class="stat-card-image" src="https://placehold.co/100x100/6a3d13/d3b482?text=Alianca" alt="Imagem de Alianca">
+                        <div class="alliance-image-container">
+                            ${allianceImagesHTML}
+                        </div>
                         <h4>Aliança dos Jogadores</h4>
                         <p>Ataque: <span id="team-atk"></span></p>
                         <p>Defesa: <span id="team-def"></span></p>
@@ -887,8 +949,9 @@
                         (combinedStats.def > game.currentMapTheme.boss.stats.def) +
                         (combinedStats.mana > game.currentMapTheme.boss.stats.mana);
                     
+                    let battleResult = '';
                     if (playersWins >= 2) {
-                        document.getElementById('conflict-result').textContent = `A aliança venceu o ${game.currentMapTheme.boss.name}!`;
+                        battleResult = `A aliança venceu o ${game.currentMapTheme.boss.name}!`;
                         addLogEntry(`A aliança de ${players.map(p => p.name).join(' e ')} venceu o ${game.currentMapTheme.boss.name}! Todos avançam 5 casas!`);
                         players.forEach(p => {
                             p.position = Math.min(p.position + 5, game.boardSize - 1);
@@ -896,7 +959,7 @@
                             updatePiecePosition(piece, p.position, game.players.indexOf(p));
                         });
                     } else {
-                        document.getElementById('conflict-result').textContent = `A aliança falhou em derrotar o ${game.currentMapTheme.boss.name}!`;
+                        battleResult = `A aliança falhou em derrotar o ${game.currentMapTheme.boss.name}!`;
                         addLogEntry(`A aliança de ${players.map(p => p.name).join(' e ')} falhou. Todos retrocedem 15 casas!`);
                         players.forEach(p => {
                             p.position = Math.max(0, p.position - 15);
@@ -904,12 +967,16 @@
                             updatePiecePosition(piece, p.position, game.players.indexOf(p));
                         });
                     }
+                    
+                    document.getElementById('conflict-result').textContent = battleResult;
 
+                    // CORREÇÃO DO BUG: garante que a tela fechará e a promessa será resolvida.
                     setTimeout(() => {
                         hideConflictScreen();
-                        resolve();
-                    }, 6000);
-                }, 3000);
+                        resolve(); // Resolve a promessa para o jogo continuar
+                    }, 4000); // Tempo para ler o resultado final
+
+                }, 3000); // Tempo para o início da batalha
             });
         }
         
@@ -919,6 +986,7 @@
                 conflictScreen.classList.remove('hidden');
                 document.getElementById('conflict-player-card').style.display = 'flex';
                 document.getElementById('conflict-opponent-card').style.display = 'flex';
+                document.getElementById('conflict-details').style.display = 'flex'; // Garante que está visível
                 conflictTitle.textContent = `Batalha contra o Mini-Boss: ${miniBoss.name}!`;
                 document.getElementById('conflict-buttons').classList.add('hidden');
 
@@ -965,7 +1033,6 @@
         // Esconde a tela de conflito
         function hideConflictScreen() {
             conflictScreen.classList.add('hidden');
-            // O botão de rolar dado será reativado na função endTurn
         }
 
         // Verifica se o jogador venceu
@@ -1008,6 +1075,7 @@
             showScreen('main');
         };
 
+        // Redesenha o tabuleiro se a janela for redimensionada
         window.addEventListener('resize', () => {
             if (gameScreen.style.display !== 'none') {
                 createBoard();
