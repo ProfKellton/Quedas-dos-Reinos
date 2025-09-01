@@ -11,7 +11,6 @@
 <body class="bg-gray-800 text-amber-300">
     <div class="container">
 
-        <!-- Tela Principal (Menu) -->
         <div id="main-menu" class="screen menu-panel flex">
             <h1 class="text-6xl font-bold mb-4">Quedas dos Reinos</h1>
             <p class="text-xl">Um épico jogo de tabuleiro medieval</p>
@@ -22,7 +21,6 @@
             <div id="message-box" class="mt-4 text-center text-xl hidden"></div>
         </div>
 
-        <!-- Tela de Regras -->
         <div id="rules-screen" class="hidden">
             <h2 class="text-3xl font-bold mb-4">Regras do Jogo</h2>
             <p><strong>Objetivo:</strong> O primeiro jogador a chegar na última casa do tabuleiro vence!</p>
@@ -30,8 +28,8 @@
             <p><strong>Turno:</strong> Cada jogador rola um dado para mover sua peça. O número de casas a mover é igual ao resultado do dado.</p>
             <p><strong>Casas Especiais:</strong></p>
             <ul class="list-disc list-inside">
-                <li><strong>Casas de Bônus (Verde):</strong> Ganhe 1 Troféu e receba um bônus de história. Ao acumular 3 ou mais, seu personagem é promovido a uma classe superior, dobrando seus atributos.</li>
-                <li><strong>Casas de Desafio (Vermelha):</strong> Retroceda um número aleatório de casas.</li>
+                <li><strong>Casas de Bônus (Verde):</strong> Ganhe 1 Troféu e receba um bônus de história. Jogadores humanos terão que fazer uma escolha e rolar um dado de ação. Um resultado 4, 5 ou 6 significa sucesso, podendo resultar em recompensas maiores. Um resultado 1, 2 ou 3 significa falha, podendo resultar na perda do bônus ou até mesmo uma penalidade. IAs resolvem o evento automaticamente. Ao acumular 3 ou mais troféus, seu personagem é promovido a uma classe superior.</li>
+                <li><strong>Casas de Desafio (Vermelha):</strong> Encare um desafio que pode te fazer retroceder casas. Jogadores humanos terão opções para tentar evitar a penalidade, como fugir ou lutar, e deverão rolar um dado de ação. Um resultado 4, 5 ou 6 significa sucesso, permitindo evitar a punição. Um resultado 1, 2 ou 3 significa falha, e a penalidade será aplicada. IAs resolvem o evento automaticamente.</li>
                 <li><strong>Casas de Boss (Bordô):</strong> Se dois jogadores pararem na mesma casa, devem se unir para enfrentar o Boss. A vitória exige que os atributos combinados dos jogadores sejam superiores aos do Boss.</li>
             </ul>
             <p><strong>Conflito entre Jogadores:</strong> Se um jogador parar em uma casa já ocupada por outro (exceto a casa inicial), um conflito pode ser iniciado. O jogador que chegou por segundo pode escolher entre "Paz" ou "Conflito". Em caso de conflito, o jogador com a maioria dos atributos (Ataque, Defesa, Mana) vence. O vencedor ganha 1 Troféu e o perdedor perde 1.</p>
@@ -41,7 +39,6 @@
             </div>
         </div>
 
-        <!-- Tela de Configuração -->
         <div id="setup-screen" class="screen flex-col">
             <h2 class="text-4xl font-bold">Configurar Jogo</h2>
             
@@ -97,7 +94,6 @@
             <button id="back-to-main-btn" class="btn mt-2">Voltar</button>
         </div>
         
-        <!-- Tela de Visualização de Personagem -->
         <div id="character-card-popup" class="hidden card-popup">
             <div class="card">
                 <img id="character-card-img" class="stat-card-image mx-auto" src="" alt="">
@@ -121,7 +117,6 @@
             </div>
         </div>
 
-        <!-- Tela do Jogo -->
         <div id="game-screen" class="screen flex-col">
             <div class="flex items-center justify-between w-full max-w-6xl p-4 bg-gray-900 border-2 border-amber-500 rounded-xl mb-4">
                 <div id="turn-info" class="text-2xl font-bold"></div>
@@ -155,7 +150,6 @@
             </div>
         </div>
         
-        <!-- Card para eventos de bônus/desafio -->
         <div id="card-popup" class="hidden card-popup">
             <div class="card">
                 <img id="card-image" src="" alt="Imagem do Evento" class="mx-auto mb-4 rounded-lg hidden" style="max-height: 200px;">
@@ -165,12 +159,25 @@
             </div>
         </div>
 
-        <!-- Tela de Conflito Genérico (incluindo Boss/Mini-Boss) -->
+        <div id="choice-popup" class="hidden card-popup">
+            <div class="card bg-opacity-95 backdrop-blur-sm">
+                <h3 id="choice-title" class="text-2xl font-bold mb-4"></h3>
+                <p id="choice-description" class="text-lg mb-4"></p>
+                <div id="choice-buttons" class="flex flex-wrap justify-center gap-2 mb-4">
+                    </div>
+                <div class="flex items-center justify-center space-x-4 mt-4">
+                    <button id="choice-roll-dice-btn" class="btn hidden !text-base !py-2 !px-4">Rolar Dado de Ação</button>
+                    <div id="choice-dice-result" class="text-4xl w-12 text-center font-bold"></div>
+                </div>
+                <p id="choice-result-text" class="text-lg mt-4 h-8"></p>
+                <button id="close-choice-popup-btn" class="btn mt-4 hidden">Continuar</button>
+            </div>
+        </div>
+
         <div id="conflict-screen" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50">
             <div class="bg-gray-900 border-4 border-red-500 p-8 rounded-xl shadow-lg text-center space-y-6 max-w-lg w-11/12">
                 <h2 id="conflict-title" class="text-3xl font-bold">Conflito!</h2>
                 <div id="conflict-details" class="flex flex-col md:flex-row justify-center items-center md:items-start space-y-4 md:space-y-0 md:space-x-8">
-                    <!-- Cards de Jogador(es) e Oponente -->
                     <div id="conflict-player-card" class="stat-card">
                         <img id="conflict-player-img" class="stat-card-image" src="" alt="">
                         <h4 id="conflict-player-name"></h4>
@@ -196,7 +203,6 @@
             </div>
         </div>
 
-        <!-- Pop-up para escolha do Boss (Lutar ou Esperar) -->
         <div id="boss-choice-popup" class="hidden card-popup">
             <div class="card">
                 <h3 class="text-2xl font-bold mb-4">Você encontrou o Boss!</h3>
@@ -206,11 +212,11 @@
             </div>
         </div>
         
-        <!-- Tela de Vitória -->
         <div id="win-screen" class="screen menu-panel">
-            <h2 class="text-5xl font-bold">Vitória!</h2>
-            <p id="winner-name" class="text-3xl"></p>
-            <button id="play-again-btn" class="btn">Jogar Novamente</button>
+            <h2 class="text-5xl font-bold">Fim de Jogo!</h2>
+            <h3 class="text-3xl mb-4">Ranking Final:</h3>
+            <div id="final-ranking" class="text-xl w-full max-w-md"></div>
+            <button id="play-again-btn" class="btn mt-6">Jogar Novamente</button>
         </div>
 
     </div>

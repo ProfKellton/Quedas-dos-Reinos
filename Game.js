@@ -10,6 +10,7 @@
             difficulty: 'easy',
             selectedMap: 'floresta',
             currentMapTheme: {},
+            finishedPlayers: [],
             classes: [
                 { name: 'Espadachim', emoji: '⚔️', stats: { atk: 6, def: 8, mana: 4 }, promoted: 'Cavaleiro', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Espadachim' },
                 { name: 'Mago', emoji: '🧙‍♂️', stats: { atk: 5, def: 5, mana: 10 }, promoted: 'Arquimago', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Mago' },
@@ -44,7 +45,6 @@
                         { text: "Um riacho de águas cristalinas restaurou suas energias. Avance 2 casas!", steps: 2, image: 'https://placehold.co/300x200/228b22/fff?text=Riacho' },
                         { text: "Um tesouro de um aventureiro perdido. Avance 3 casas!", steps: 3, image: 'https://placehold.co/300x200/228b22/fff?text=Tesouro' }
                     ],
-                    // Imagens para as casas do tabuleiro
                     bonusImage: "url('https://placehold.co/50x50/228b22/FFFFFF?text=B')",
                     challengeImage: "url('https://placehold.co/50x50/b22222/FFFFFF?text=D')",
                     bossImage: "url('https://placehold.co/50x50/8b0000/FFFFFF?text=BOSS')"
@@ -177,6 +177,18 @@
         const bossWaitBtn = document.getElementById('boss-wait-btn');
         const toggleLogBtn = document.getElementById('toggle-log-btn');
         const closeLogBtn = document.getElementById('close-log-btn');
+        const finalRankingDiv = document.getElementById('final-ranking');
+        
+        // Novos elementos do Pop-up de Escolha
+        const choicePopup = document.getElementById('choice-popup');
+        const choiceTitle = document.getElementById('choice-title');
+        const choiceDescription = document.getElementById('choice-description');
+        const choiceButtons = document.getElementById('choice-buttons');
+        const choiceRollDiceBtn = document.getElementById('choice-roll-dice-btn');
+        const choiceDiceResult = document.getElementById('choice-dice-result');
+        const choiceResultText = document.getElementById('choice-result-text');
+        const closeChoicePopupBtn = document.getElementById('close-choice-popup-btn');
+
         
         // --- Event Listeners ---
         document.getElementById('start-game-btn').addEventListener('click', () => showScreen('setup'));
@@ -237,6 +249,7 @@
             conflictScreen.classList.add('hidden');
             bossChoicePopup.classList.add('hidden');
             logPanel.classList.add('hidden');
+            choicePopup.classList.add('hidden');
 
 
             switch (screen) {
@@ -251,7 +264,6 @@
                 case 'game': 
                     gameScreen.style.display = 'flex'; 
                     playMusic(`music-${game.selectedMap}`);
-                    // Mostra o log panel em telas maiores
                     if (window.innerWidth >= 1024) {
                         logPanel.classList.remove('hidden');
                     }
@@ -286,8 +298,6 @@
         function createPlayerSetup() {
             playerSetupForm.innerHTML = '';
             const playerCount = parseInt(playerCountSelect.value);
-
-            // Crie uma lista de classes disponíveis para os jogadores humanos
             const availableClasses = [...game.classes];
 
             for (let i = 0; i < playerCount; i++) {
@@ -341,6 +351,7 @@
             const playerClasses = document.querySelectorAll('.player-class');
             const chosenClassNames = Array.from(playerClasses).map(s => s.value);
             game.players = [];
+            game.finishedPlayers = [];
 
             // Adiciona jogadores humanos
             playerNames.forEach((input, i) => {
@@ -356,7 +367,8 @@
                     trophies: 0,
                     isAI: false,
                     stats: { ...baseClass.stats },
-                    image: baseClass.image
+                    image: baseClass.image,
+                    hasFinished: false
                 });
             });
 
@@ -364,7 +376,6 @@
             const allClasses = game.classes.map(c => c.name);
             let availableClasses = allClasses.filter(c => !chosenClassNames.includes(c));
             
-            // Garante que há classes suficientes para IAs, mesmo que repetidas
             while (availableClasses.length < aiCount) {
                 availableClasses = availableClasses.concat(allClasses);
             }
@@ -381,15 +392,14 @@
                     trophies: 0,
                     isAI: true,
                     stats: { ...aiClass.stats },
-                    image: aiClass.image
+                    image: aiClass.image,
+                    hasFinished: false
                 });
             }
             
-            // Sorteia a ordem de jogo
             game.players.sort(() => Math.random() - 0.5);
             game.currentPlayerIndex = 0;
             
-            // Gera os tipos de casa uma vez para persistirem
             game.spaceTypes = generateRandomSpaces(game.boardSize);
 
             createBoard();
@@ -402,7 +412,6 @@
             }
         }
         
-        // --- NOVO: Gerador de números pseudo-aleatórios com semente (para layout do tabuleiro) ---
         function seededRandom(seed) {
             let state = seed;
             return function() {
@@ -411,9 +420,7 @@
             };
         }
 
-        // Gera coordenadas para um tabuleiro de forma irregular, evitando sobreposição e mantendo dentro dos limites
         function generateIrregularPathCoords(size, width, height) {
-            // Cria uma semente a partir do nome do mapa para ter um layout consistente
             let seed = 0;
             for (let i = 0; i < game.selectedMap.length; i++) {
                 seed += game.selectedMap.charCodeAt(i);
@@ -463,7 +470,6 @@
                             break;
                         }
                     }
-
                     if (!isOverlapping) {
                         validPosition = true;
                     }
@@ -473,14 +479,11 @@
                     x = Math.max(padding, Math.min(x, width - spaceSize - padding));
                     y = Math.max(padding, Math.min(y, height - spaceSize - padding));
                 }
-
                 coords.push({ x, y });
             }
             return coords;
         }
 
-
-        // Cria e desenha o tabuleiro
         function createBoard() {
             gameBoard.innerHTML = '';
             game.spaces = [];
@@ -521,7 +524,6 @@
             }
         }
         
-        // Gera posições aleatórias para bônus, desafios e mini-bosses
         function generateRandomSpaces(boardSize) {
             const types = Array(boardSize).fill('normal');
             const bonusCount = Math.floor(boardSize / 5);
@@ -552,7 +554,6 @@
             return types;
         }
 
-        // Desenha as peças dos jogadores no tabuleiro
         function renderPlayers() {
             game.players.forEach((player, index) => {
                 let piece = document.getElementById(`player-piece-${index}`);
@@ -564,26 +565,26 @@
                     piece.textContent = playerClass.emoji;
                     gameBoard.appendChild(piece);
                 }
-                updatePiecePosition(piece, player.position, index);
+                if(player.hasFinished) {
+                    piece.classList.add('hidden');
+                } else {
+                    piece.classList.remove('hidden');
+                    updatePiecePosition(piece, player.position, index);
+                }
             });
         }
         
-        // Atualiza a posição visual da peça
         function updatePiecePosition(piece, position, playerIndex) {
             if (!game.spaces[position] || !game.spaces[position].element) return;
             const targetSpace = game.spaces[position].element;
-            
             const playerOffset = (playerIndex % 4) * 5;
-            
             const pieceX = targetSpace.offsetLeft + (targetSpace.offsetWidth / 2) + playerOffset;
             const pieceY = targetSpace.offsetTop + (targetSpace.offsetHeight / 2) + playerOffset;
-            
             piece.style.left = `${pieceX}px`;
             piece.style.top = `${pieceY}px`;
             piece.style.transform = `translate(-50%, -50%)`;
         }
 
-        // Inicia o turno do jogador atual
         async function playTurn() {
             const currentPlayer = game.players[game.currentPlayerIndex];
             rollDiceBtn.disabled = true;
@@ -591,7 +592,6 @@
             rollDice();
         }
 
-        // Lança o dado e move o jogador
         function rollDice() {
             rollDiceBtn.disabled = true;
             diceResultDiv.textContent = '';
@@ -626,7 +626,6 @@
             }, 1500);
         }
 
-        // Anima o movimento da peça no tabuleiro
         async function movePiece(player, oldPos, newPos) {
             const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
             for (let i = oldPos + 1; i <= newPos; i++) {
@@ -637,18 +636,16 @@
             
             await handleSpaceEvent(player);
 
-            if (player.position !== game.boardSize -1) {
-                endTurn();
-            } else {
-                 checkWinCondition(player);
+            if (player.position === game.boardSize - 1 && !player.hasFinished) {
+                checkWinCondition(player);
             }
+            
+            endTurnOrEndGame();
         }
         
-        // Lida com eventos de desafio, bônus, mini-boss e boss
         async function handleSpaceEvent(player) {
             const spaceType = game.spaces[player.position].type;
-            
-            const playersOnSpace = game.players.filter(p => p.position === player.position && p !== player);
+            const playersOnSpace = game.players.filter(p => p.position === player.position && p !== player && !p.hasFinished);
 
             if (spaceType === 'boss') {
                 if (playerWaitingForBoss) {
@@ -673,31 +670,28 @@
 
             if (spaceType === 'bonus') {
                 const randomBonus = game.currentMapTheme.bonusStories[Math.floor(Math.random() * game.currentMapTheme.bonusStories.length)];
-                player.trophies++;
-                checkPromotion(player);
-                addLogEntry(`${player.name} pousou em uma casa de Bônus. ${randomBonus.text}`);
-                if (randomBonus.steps > 0) {
-                    const newPos = Math.min(player.position + randomBonus.steps, game.boardSize - 1);
-                    player.position = newPos;
-                    const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
-                    updatePiecePosition(piece, player.position, game.players.indexOf(player));
-                }
-                if (!player.isAI) {
+                if (player.isAI) {
+                    player.trophies++;
+                    checkPromotion(player);
+                    addLogEntry(`${player.name} (IA) pousou em uma casa de Bônus.`);
                     showCard({ title: 'Bônus!', description: randomBonus.text, image: randomBonus.image });
+                } else {
+                    await showPlayerChoicePopup(player, 'bonus', randomBonus);
                 }
             } else if (spaceType === 'challenge') {
                 const randomChallenge = game.currentMapTheme.challengeStories[Math.floor(Math.random() * game.currentMapTheme.challengeStories.length)];
-                addLogEntry(`${player.name} pousou em uma casa de Desafio. ${randomChallenge.text}`);
-                player.position = Math.max(0, player.position - randomChallenge.steps);
-                const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
-                updatePiecePosition(piece, player.position, game.players.indexOf(player));
-                if (!player.isAI) {
+                addLogEntry(`${player.name} pousou em uma casa de Desafio.`);
+                if (player.isAI) {
+                    player.position = Math.max(0, player.position - randomChallenge.steps);
+                    const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+                    updatePiecePosition(piece, player.position, game.players.indexOf(player));
                     showCard({ title: 'Desafio!', description: randomChallenge.text, image: randomChallenge.image });
+                } else {
+                    await showPlayerChoicePopup(player, 'challenge', randomChallenge);
                 }
             }
         }
         
-        // Mostra o cartão de evento com animação e temporizador
         function showCard(info) {
             const cardImage = document.getElementById('card-image');
             cardTitle.textContent = info.title;
@@ -718,7 +712,146 @@
             }, 3000);
         }
 
-        // Lida com a promoção de classe
+        async function showPlayerChoicePopup(player, type, event) {
+            return new Promise(resolve => {
+                gameBoard.classList.add('blur-sm');
+                choiceTitle.textContent = type === 'bonus' ? 'Casa de Bônus!' : 'Casa de Desafio!';
+                choiceDescription.textContent = event.text;
+
+                choiceButtons.innerHTML = '';
+                choiceResultText.textContent = '';
+                choiceDiceResult.textContent = '';
+                choiceRollDiceBtn.classList.add('hidden');
+                closeChoicePopupBtn.classList.add('hidden');
+                
+                const choices = type === 'bonus' 
+                    ? ["Tentar Pegar", "Investigar o lugar", "Investigar o item", "Ignorar", "Buscar algo mais valioso"]
+                    : ["Aceitar o desafio", "Esconder-se", "Tentar Habilidade", "Fugir", "Ignorar"];
+
+                choices.forEach(choiceText => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn !text-sm !py-1 !px-3';
+                    btn.textContent = choiceText;
+                    btn.onclick = () => handlePlayerChoice(player, choiceText, type, event, resolve);
+                    choiceButtons.appendChild(btn);
+                });
+
+                choicePopup.classList.remove('hidden');
+            });
+        }
+        
+        function handlePlayerChoice(player, choice, type, event, resolve) {
+            choiceButtons.classList.add('hidden');
+            choiceRollDiceBtn.classList.remove('hidden');
+            choiceResultText.textContent = `Você escolheu: ${choice}. Role o dado!`;
+
+            choiceRollDiceBtn.onclick = () => {
+                const roll = Math.floor(Math.random() * 6) + 1;
+                choiceDiceResult.textContent = roll;
+                choiceRollDiceBtn.disabled = true;
+
+                setTimeout(() => {
+                    if (type === 'bonus') {
+                        resolveBonusChoice(player, choice, roll, event);
+                    } else {
+                        resolveChallengeChoice(player, choice, roll, event);
+                    }
+
+                    closeChoicePopupBtn.classList.remove('hidden');
+                    closeChoicePopupBtn.onclick = () => {
+                        choicePopup.classList.add('hidden');
+                        choiceButtons.classList.remove('hidden');
+                        choiceRollDiceBtn.disabled = false;
+                        gameBoard.classList.remove('blur-sm');
+                        resolve();
+                    };
+                }, 1000);
+            };
+        }
+
+        function resolveBonusChoice(player, choice, roll, event) {
+            const success = roll >= 4;
+            let resultMsg = '';
+
+            if (success) {
+                player.trophies++;
+                resultMsg = `SUCESSO! (${roll}) `;
+                switch (choice) {
+                    case "Tentar Pegar": resultMsg += "Você pegou o item e ganhou 1 troféu!"; break;
+                    case "Investigar o lugar":
+                        const adv = 2;
+                        player.position = Math.min(player.position + adv, game.boardSize - 1);
+                        resultMsg += `Você achou um atalho! Avance ${adv} casas e ganhe 1 troféu!`;
+                        break;
+                    case "Investigar o item":
+                        player.stats.atk += 1;
+                        resultMsg += `O item te concede poder! +1 ATK permanente e 1 troféu!`;
+                        break;
+                    case "Buscar algo mais valioso":
+                        player.trophies++;
+                        resultMsg += "Sua ambição foi recompensada! Você ganhou 2 troféus!";
+                        break;
+                    case "Ignorar":
+                        resultMsg += "Você prudentemente pega o bônus e segue em frente. Ganhou 1 troféu.";
+                        break;
+                }
+                checkPromotion(player);
+            } else {
+                resultMsg = `FALHA! (${roll}) `;
+                 switch (choice) {
+                    case "Tentar Pegar":
+                        player.position = Math.max(0, player.position - 1);
+                        resultMsg += "É uma armadilha! Você recua 1 casa.";
+                        break;
+                    case "Investigar o lugar": resultMsg += "Você se perdeu e não achou nada. Permanece no lugar."; break;
+                    case "Investigar o item":
+                        player.stats.def = Math.max(1, player.stats.def - 1);
+                        resultMsg += "O item é amaldiçoado! -1 DEF permanente.";
+                        break;
+                    case "Buscar algo mais valioso":
+                         player.trophies = Math.max(0, player.trophies -1);
+                        resultMsg += "Sua ganância te custou! Você perdeu o bônus e 1 troféu.";
+                        break;
+                    case "Ignorar":
+                        resultMsg += "Você hesitou e perdeu a oportunidade. Nada acontece.";
+                        break;
+                }
+            }
+            addLogEntry(resultMsg);
+            choiceResultText.textContent = resultMsg;
+            renderPlayers();
+        }
+        
+        function resolveChallengeChoice(player, choice, roll, event) {
+            const success = roll >= 4;
+            let resultMsg = '';
+
+            if (success) {
+                resultMsg = `SUCESSO! (${roll}) `;
+                switch (choice) {
+                    case "Aceitar o desafio": 
+                        player.position = Math.min(player.position + 1, game.boardSize - 1);
+                        resultMsg += "Você venceu o desafio e ainda avançou 1 casa!"; 
+                        break;
+                    case "Esconder-se": resultMsg += "Você se escondeu perfeitamente e evitou o perigo."; break;
+                    case "Tentar Habilidade": resultMsg += "Sua habilidade funcionou! O perigo foi neutralizado."; break;
+                    case "Fugir":
+                        player.position = Math.max(0, player.position - 1);
+                        resultMsg += "Você conseguiu fugir, mas recuou 1 casa para garantir.";
+                        break;
+                    case "Ignorar": resultMsg += "Você passou despercebido. O perigo te ignorou."; break;
+                }
+            } else {
+                resultMsg = `FALHA! (${roll}) ${choice} não funcionou. `;
+                const penalty = event.steps;
+                player.position = Math.max(0, player.position - penalty);
+                resultMsg += `Você sofreu a penalidade e recuou ${penalty} casas.`;
+            }
+            addLogEntry(resultMsg);
+            choiceResultText.textContent = resultMsg;
+            renderPlayers();
+        }
+
         function checkPromotion(player) {
             if (player.trophies >= game.promotionTrophies && !player.isPromoted) {
                 const promotedName = player.baseClass.promoted;
@@ -736,7 +869,6 @@
             }
         }
 
-        // Lógica de decisão para IA em conflitos
         function handleAIConflictDecision(aiPlayer, opponent) {
             if (game.difficulty === 'easy') {
                 return 'peace';
@@ -756,7 +888,6 @@
             }
         }
 
-        // Mostra a tela de conflito entre jogadores
         function showPlayerConflict(player, opponent) {
             return new Promise(resolve => {
                 conflictScreen.classList.remove('hidden');
@@ -856,14 +987,13 @@
             }
         }
         
-        // Lida com a escolha do Boss (lutar ou esperar)
         function handleBossChoice(player, choice = null) {
             return new Promise(resolve => {
                 if (player.isAI) {
                     const aiChoice = game.difficulty === 'hard' ? 'fight' : 'wait';
                     if (aiChoice === 'fight') {
                         addLogEntry(`${player.name} (IA) ousou lutar sozinho contra o Boss!`);
-                        player.position = 0; // "Morre"
+                        player.position = 0;
                         const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
                         updatePiecePosition(piece, player.position, game.players.indexOf(player));
                         resolve();
@@ -895,13 +1025,11 @@
             });
         }
 
-        // Lida com a batalha em equipe contra o Boss final
         async function showBossConflict(players) {
             return new Promise(resolve => {
                 conflictScreen.classList.remove('hidden');
                 conflictTitle.textContent = `Batalha contra ${game.currentMapTheme.boss.name}!`;
 
-                // Cria as imagens dos jogadores da aliança
                 const allianceImagesHTML = players.map(p => 
                     `<img class="stat-card-image" src="${p.image}" alt="Imagem de ${p.name}">`
                 ).join('');
@@ -970,23 +1098,21 @@
                     
                     document.getElementById('conflict-result').textContent = battleResult;
 
-                    // CORREÇÃO DO BUG: garante que a tela fechará e a promessa será resolvida.
                     setTimeout(() => {
                         hideConflictScreen();
-                        resolve(); // Resolve a promessa para o jogo continuar
-                    }, 4000); // Tempo para ler o resultado final
+                        resolve();
+                    }, 4000);
 
-                }, 3000); // Tempo para o início da batalha
+                }, 3000);
             });
         }
         
-        // Lida com a batalha contra um Mini-Boss
         async function showMiniBossConflict(player, miniBoss) {
             return new Promise(resolve => {
                 conflictScreen.classList.remove('hidden');
                 document.getElementById('conflict-player-card').style.display = 'flex';
                 document.getElementById('conflict-opponent-card').style.display = 'flex';
-                document.getElementById('conflict-details').style.display = 'flex'; // Garante que está visível
+                document.getElementById('conflict-details').style.display = 'flex';
                 conflictTitle.textContent = `Batalha contra o Mini-Boss: ${miniBoss.name}!`;
                 document.getElementById('conflict-buttons').classList.add('hidden');
 
@@ -1030,22 +1156,38 @@
         }
 
 
-        // Esconde a tela de conflito
         function hideConflictScreen() {
             conflictScreen.classList.add('hidden');
         }
 
-        // Verifica se o jogador venceu
         function checkWinCondition(player) {
-            if (player.position === game.boardSize - 1) {
-                document.getElementById('winner-name').textContent = `${player.name} venceu a queda dos reinos!`;
+            player.hasFinished = true;
+            game.finishedPlayers.push(player);
+            addLogEntry(`${player.name} terminou a corrida!`);
+            const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
+            if(piece) piece.classList.add('hidden');
+        }
+        
+        function endTurnOrEndGame() {
+            const activePlayers = game.players.filter(p => !p.hasFinished);
+            if (activePlayers.length === 0) {
+                const rankingHTML = `<ol class="list-decimal list-inside text-left space-y-2">${game.finishedPlayers.map(p => `<li>${p.name} (${p.class})</li>`).join('')}</ol>`;
+                finalRankingDiv.innerHTML = rankingHTML;
                 showScreen('win');
+            } else {
+                endTurn();
             }
         }
 
-        // Finaliza o turno e passa a vez
         function endTurn() {
-            game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
+            let nextPlayerIndex = game.currentPlayerIndex;
+            let loopCount = 0; 
+            do {
+                nextPlayerIndex = (nextPlayerIndex + 1) % game.players.length;
+                loopCount++;
+            } while (game.players[nextPlayerIndex].hasFinished && loopCount <= game.players.length);
+
+            game.currentPlayerIndex = nextPlayerIndex;
             updateDisplay();
             
             const currentPlayer = game.players[game.currentPlayerIndex];
@@ -1057,25 +1199,24 @@
             }
         }
 
-        // Atualiza as informações na tela
         function updateDisplay() {
             const currentPlayer = game.players[game.currentPlayerIndex];
-            turnInfo.textContent = `Vez de: ${currentPlayer.name}`;
+            if (currentPlayer) {
+                turnInfo.textContent = `Vez de: ${currentPlayer.name}`;
+            }
             
             const playerListDiv = document.getElementById('player-list');
-            playerListDiv.innerHTML = game.players.map(p => {
+            playerListDiv.innerHTML = game.players.filter(p => !p.hasFinished).map(p => {
                 const isCurrent = p.name === currentPlayer.name ? 'font-bold' : '';
                 return `<div class="${isCurrent}">${p.name} (${p.class}): ${p.trophies} Troféus</div>`;
             }).join('');
         }
         
-        // Inicia o jogo ao carregar a página
         window.onload = function() {
             createPlayerSetup();
             showScreen('main');
         };
 
-        // Redesenha o tabuleiro se a janela for redimensionada
         window.addEventListener('resize', () => {
             if (gameScreen.style.display !== 'none') {
                 createBoard();
