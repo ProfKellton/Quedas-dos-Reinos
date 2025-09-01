@@ -11,6 +11,7 @@
             selectedMap: 'floresta',
             currentMapTheme: {},
             finishedPlayers: [],
+            inactivityTimerEnabled: true,
             classes: [
                 { name: 'Espadachim', emoji: '⚔️', stats: { atk: 6, def: 8, mana: 4 }, promoted: 'Cavaleiro', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Espadachim' },
                 { name: 'Mago', emoji: '🧙‍♂️', stats: { atk: 5, def: 5, mana: 10 }, promoted: 'Arquimago', image: 'https://placehold.co/140x140/6a3d13/d3b482?text=Mago' },
@@ -139,6 +140,7 @@
 
         // Variável global para armazenar o jogador que está esperando pelo boss
         let playerWaitingForBoss = null;
+        let turnTimer = null; // Temporizador de inatividade do turno
 
         // --- Elementos do DOM ---
         const mainMenuScreen = document.getElementById('main-menu');
@@ -189,36 +191,6 @@
         const choiceDiceResult = document.getElementById('choice-dice-result');
         const choiceResultText = document.getElementById('choice-result-text');
         const closeChoicePopupBtn = document.getElementById('close-choice-popup-btn');
-
-        
-        // --- Event Listeners ---
-        document.getElementById('start-game-btn').addEventListener('click', () => showScreen('setup'));
-        document.getElementById('begin-game-btn').addEventListener('click', () => initializeGame());
-        document.getElementById('play-again-btn').addEventListener('click', () => { location.reload(); });
-        rollDiceBtn.addEventListener('click', () => {
-            if (rollDiceBtn.disabled) return;
-            rollDice();
-        });
-        rulesBtn.addEventListener('click', () => rulesScreen.classList.remove('hidden'));
-        closeRulesBtn.addEventListener('click', () => rulesScreen.classList.add('hidden'));
-        closeCharacterCardBtn.addEventListener('click', () => characterCardPopup.classList.add('hidden'));
-        leaveGameBtn.addEventListener('click', () => {
-            stopAllMusic();
-            location.reload();
-        });
-        backToMainBtn.addEventListener('click', () => showScreen('main'));
-        
-        playerCountSelect.addEventListener('change', createPlayerSetup);
-        aiCountSelect.addEventListener('change', createPlayerSetup);
-
-        // Lógica de escolha do Boss
-        bossFightAloneBtn.addEventListener('click', () => handleBossChoice(game.players[game.currentPlayerIndex], 'fight'));
-        bossWaitBtn.addEventListener('click', () => handleBossChoice(game.players[game.currentPlayerIndex], 'wait'));
-        
-        // Lógica do Log para mobile
-        toggleLogBtn.addEventListener('click', () => logPanel.classList.toggle('hidden'));
-        closeLogBtn.addEventListener('click', () => logPanel.classList.add('hidden'));
-
 
         // --- Funções de Música ---
         function stopAllMusic() {
@@ -347,6 +319,7 @@
             game.difficulty = difficultySelect.value;
             game.selectedMap = mapSelect.value;
             game.currentMapTheme = game.mapThemes[game.selectedMap];
+            game.inactivityTimerEnabled = document.getElementById('inactivity-timer-check').checked;
             
             const playerNames = document.querySelectorAll('.player-name');
             const playerClasses = document.querySelectorAll('.player-class');
@@ -403,14 +376,18 @@
             
             game.spaceTypes = generateRandomSpaces(game.boardSize);
 
-            createBoard();
-            renderPlayers();
             showScreen('game');
-            updateDisplay();
-            addLogEntry(`A ordem de jogada foi sorteada. É a vez de ${game.players[game.currentPlayerIndex].name}!`);
-            if (game.players[game.currentPlayerIndex].isAI) {
-                setTimeout(() => playTurn(), 2000);
-            }
+
+            // Atraso para garantir que o DOM seja renderizado antes de calcular as dimensões do tabuleiro
+            setTimeout(() => {
+                createBoard();
+                renderPlayers();
+                updateDisplay();
+                addLogEntry(`A ordem de jogada foi sorteada. É a vez de ${game.players[game.currentPlayerIndex].name}!`);
+                if (game.players[game.currentPlayerIndex].isAI) {
+                    setTimeout(() => playTurn(), 2000);
+                }
+            }, 0);
         }
         
         function seededRandom(seed) {
@@ -422,53 +399,45 @@
         }
 
         function generateIrregularPathCoords(size, width, height) {
-            // Generate a seed from the map name to keep layouts consistent
             let seed = 0;
             for (let i = 0; i < game.selectedMap.length; i++) {
                 seed += game.selectedMap.charCodeAt(i);
             }
-            const random = seededRandom(seed); // Use the seeded random number generator
+            const random = seededRandom(seed);
 
             const coords = [];
-            const padding = 25; // A bit of space from the edges
+            const padding = 25;
             const spaceSize = 45;
             const effectiveWidth = width - 2 * padding - spaceSize;
             const effectiveHeight = height - 2 * padding - spaceSize;
 
-            // Estimate rows and columns to create a serpentine path
             const numCols = Math.ceil(Math.sqrt(size));
             const numRows = Math.ceil(size / numCols);
 
-            const colWidth = effectiveWidth / (numCols - 1);
-            const rowHeight = effectiveHeight / (numRows - 1);
+            const colWidth = effectiveWidth / (numCols > 1 ? numCols - 1 : 1);
+            const rowHeight = effectiveHeight / (numRows > 1 ? numRows - 1 : 1);
 
             for (let i = 0; i < size; i++) {
                 const row = Math.floor(i / numCols);
                 let col = i % numCols;
 
-                // Reverse direction for odd rows to create the 'snake' pattern
                 if (row % 2 !== 0) {
                     col = numCols - 1 - col;
                 }
 
-                // Calculate base position
                 let x = padding + col * colWidth;
                 let y = padding + row * rowHeight;
 
-                // Add some random jitter, but not so much that it crosses over
-                // Don't jitter the first and last space
                 if (i > 0 && i < size - 1) {
-                    x += (random() - 0.5) * colWidth * 0.5;
-                    y += (random() - 0.5) * rowHeight * 0.5;
+                    x += (random() - 0.5) * colWidth * 0.25;
+                    y += (random() - 0.5) * rowHeight * 0.25;
                 }
                 
-                // Ensure it doesn't go out of bounds
                 x = Math.max(padding, Math.min(x, width - padding - spaceSize));
                 y = Math.max(padding, Math.min(y, height - padding - spaceSize));
-
+                
                 coords.push({ x, y });
             }
-
             return coords;
         }
 
@@ -581,6 +550,7 @@
         }
 
         function rollDice() {
+            if (game.inactivityTimerEnabled) clearTimeout(turnTimer);
             rollDiceBtn.disabled = true;
             diceResultDiv.textContent = '';
             const dice = document.getElementById('dice');
@@ -642,21 +612,12 @@
                 } else {
                     await handleBossChoice(player);
                 }
-                return;
-            }
-
-            if (spaceType === 'mini-boss') {
+            } else if (spaceType === 'mini-boss') {
                 await showMiniBossConflict(player, game.currentMapTheme.miniBoss);
-                return;
-            }
-
-            if (playersOnSpace.length > 0 && player.position !== 0) {
+            } else if (playersOnSpace.length > 0 && player.position !== 0) {
                 const opponent = playersOnSpace[0];
                 await showPlayerConflict(player, opponent);
-                return;
-            }
-
-            if (spaceType === 'bonus') {
+            } else if (spaceType === 'bonus') {
                 const randomBonus = game.currentMapTheme.bonusStories[Math.floor(Math.random() * game.currentMapTheme.bonusStories.length)];
                 if (player.isAI) {
                     player.trophies++;
@@ -984,15 +945,14 @@
             }
         }
         
-        function handleBossChoice(player, choice = null) {
+        function handleBossChoice(player) {
             return new Promise(resolve => {
                 if (player.isAI) {
                     const aiChoice = game.difficulty === 'hard' ? 'fight' : 'wait';
                     if (aiChoice === 'fight') {
                         addLogEntry(`${player.name} (IA) ousou lutar sozinho contra o Boss!`);
                         player.position = 0;
-                        const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
-                        updatePiecePosition(piece, player.position, game.players.indexOf(player));
+                        renderPlayers(); // Atualiza o tabuleiro
                         resolve();
                     } else {
                         addLogEntry(`${player.name} (IA) decidiu esperar por um aliado na casa do Boss.`);
@@ -1007,8 +967,7 @@
                         if (selectedChoice === 'fight') {
                             addLogEntry(`${player.name} ousou lutar sozinho contra o Boss!`);
                             player.position = 0;
-                            const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
-                            updatePiecePosition(piece, player.position, game.players.indexOf(player));
+                            renderPlayers(); // Atualiza o tabuleiro
                         } else {
                             addLogEntry(`${player.name} decidiu esperar por um aliado na casa do Boss.`);
                             playerWaitingForBoss = player;
@@ -1080,19 +1039,15 @@
                         addLogEntry(`A aliança de ${players.map(p => p.name).join(' e ')} venceu o ${game.currentMapTheme.boss.name}! Todos avançam 5 casas!`);
                         players.forEach(p => {
                             p.position = Math.min(p.position + 5, game.boardSize - 1);
-                            const piece = document.getElementById(`player-piece-${game.players.indexOf(p)}`);
-                            updatePiecePosition(piece, p.position, game.players.indexOf(p));
                         });
                     } else {
                         battleResult = `A aliança falhou em derrotar o ${game.currentMapTheme.boss.name}!`;
                         addLogEntry(`A aliança de ${players.map(p => p.name).join(' e ')} falhou. Todos retrocedem 15 casas!`);
                         players.forEach(p => {
                             p.position = Math.max(0, p.position - 15);
-                            const piece = document.getElementById(`player-piece-${game.players.indexOf(p)}`);
-                            updatePiecePosition(piece, p.position, game.players.indexOf(p));
                         });
                     }
-                    
+                    renderPlayers();
                     document.getElementById('conflict-result').textContent = battleResult;
 
                     setTimeout(() => {
@@ -1136,14 +1091,11 @@
                     if (playerWins >= 2) {
                         document.getElementById('conflict-result').textContent = `Você venceu o Mini-Boss! Avance 3 casas.`;
                         player.position = Math.min(player.position + 3, game.boardSize - 1);
-                        const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
-                        updatePiecePosition(piece, player.position, game.players.indexOf(player));
                     } else {
                         document.getElementById('conflict-result').textContent = `Você foi derrotado! Retroceda 5 casas.`;
                         player.position = Math.max(0, player.position - 5);
-                        const piece = document.getElementById(`player-piece-${game.players.indexOf(player)}`);
-                        updatePiecePosition(piece, player.position, game.players.indexOf(player));
                     }
+                    renderPlayers();
                     setTimeout(() => {
                         hideConflictScreen();
                         resolve();
@@ -1151,7 +1103,6 @@
                 }, 3000);
             });
         }
-
 
         function hideConflictScreen() {
             conflictScreen.classList.add('hidden');
@@ -1167,13 +1118,28 @@
         
         function endTurnOrEndGame() {
             const activePlayers = game.players.filter(p => !p.hasFinished);
-            if (activePlayers.length === 0) {
-                const rankingHTML = `<ol class="list-decimal list-inside text-left space-y-2">${game.finishedPlayers.map(p => `<li>${p.name} (${p.class})</li>`).join('')}</ol>`;
+            if (activePlayers.length <= 1 && game.players.length > 1 || activePlayers.length === 0) {
+                if (game.inactivityTimerEnabled) clearTimeout(turnTimer);
+                if (activePlayers.length === 1) game.finishedPlayers.push(activePlayers[0]);
+                const rankingHTML = `<ol class="list-decimal list-inside text-left space-y-2">${game.finishedPlayers.map((p, i) => `<li>${i+1}º: ${p.name} (${p.class})</li>`).join('')}</ol>`;
                 finalRankingDiv.innerHTML = rankingHTML;
                 showScreen('win');
             } else {
                 endTurn();
             }
+        }
+
+        function startTurnTimer() {
+            if (!game.inactivityTimerEnabled) return;
+            clearTimeout(turnTimer);
+            const currentPlayer = game.players[game.currentPlayerIndex];
+            if (!currentPlayer) return;
+
+            const timeoutDuration = currentPlayer.isAI ? 30000 : 20000;
+            turnTimer = setTimeout(() => {
+                addLogEntry(`${currentPlayer.name} ficou inativo(a). Passando a vez.`);
+                endTurn();
+            }, timeoutDuration);
         }
 
         function endTurn() {
@@ -1185,7 +1151,6 @@
             } while (game.players[nextPlayerIndex].hasFinished && loopCount <= game.players.length);
 
             game.currentPlayerIndex = nextPlayerIndex;
-            updateDisplay();
             
             const currentPlayer = game.players[game.currentPlayerIndex];
             if (currentPlayer.isAI) {
@@ -1194,6 +1159,8 @@
             } else {
                 rollDiceBtn.disabled = false;
             }
+            updateDisplay();
+            startTurnTimer();
         }
 
         function updateDisplay() {
@@ -1210,6 +1177,23 @@
         }
         
         window.onload = function() {
+            // Event Listeners movidos para cá para garantir que o DOM esteja carregado
+            document.getElementById('start-game-btn').addEventListener('click', () => showScreen('setup'));
+            document.getElementById('begin-game-btn').addEventListener('click', () => initializeGame());
+            document.getElementById('play-again-btn').addEventListener('click', () => { location.reload(); });
+            rollDiceBtn.addEventListener('click', () => { if (!rollDiceBtn.disabled) rollDice(); });
+            rulesBtn.addEventListener('click', () => rulesScreen.classList.remove('hidden'));
+            closeRulesBtn.addEventListener('click', () => rulesScreen.classList.add('hidden'));
+            closeCharacterCardBtn.addEventListener('click', () => characterCardPopup.classList.add('hidden'));
+            leaveGameBtn.addEventListener('click', () => { stopAllMusic(); location.reload(); });
+            backToMainBtn.addEventListener('click', () => showScreen('main'));
+            playerCountSelect.addEventListener('change', createPlayerSetup);
+            aiCountSelect.addEventListener('change', createPlayerSetup);
+            bossFightAloneBtn.addEventListener('click', () => handleBossChoice(game.players[game.currentPlayerIndex]));
+            bossWaitBtn.addEventListener('click', () => handleBossChoice(game.players[game.currentPlayerIndex]));
+            toggleLogBtn.addEventListener('click', () => logPanel.classList.toggle('hidden'));
+            closeLogBtn.addEventListener('click', () => logPanel.classList.add('hidden'));
+            
             createPlayerSetup();
             showScreen('main');
         };
