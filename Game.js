@@ -181,6 +181,7 @@
         
         // Novos elementos do Pop-up de Escolha
         const choicePopup = document.getElementById('choice-popup');
+        const choiceImage = document.getElementById('choice-image');
         const choiceTitle = document.getElementById('choice-title');
         const choiceDescription = document.getElementById('choice-description');
         const choiceButtons = document.getElementById('choice-buttons');
@@ -421,66 +422,53 @@
         }
 
         function generateIrregularPathCoords(size, width, height) {
+            // Generate a seed from the map name to keep layouts consistent
             let seed = 0;
             for (let i = 0; i < game.selectedMap.length; i++) {
                 seed += game.selectedMap.charCodeAt(i);
             }
-            const random = seededRandom(seed);
+            const random = seededRandom(seed); // Use the seeded random number generator
 
             const coords = [];
+            const padding = 25; // A bit of space from the edges
             const spaceSize = 45;
-            const minDistance = spaceSize * 0.8;
-            const padding = 5;
+            const effectiveWidth = width - 2 * padding - spaceSize;
+            const effectiveHeight = height - 2 * padding - spaceSize;
+
+            // Estimate rows and columns to create a serpentine path
+            const numCols = Math.ceil(Math.sqrt(size));
+            const numRows = Math.ceil(size / numCols);
+
+            const colWidth = effectiveWidth / (numCols - 1);
+            const rowHeight = effectiveHeight / (numRows - 1);
 
             for (let i = 0; i < size; i++) {
-                let x, y;
-                let validPosition = false;
-                let attempts = 0;
+                const row = Math.floor(i / numCols);
+                let col = i % numCols;
 
-                while (!validPosition && attempts < 100) {
-                    attempts++;
-                    if (i === 0) {
-                        x = padding;
-                        y = padding;
-                    } else {
-                        const prev = coords[i - 1];
-                        let baseAngle = Math.PI / 4;
-                        if (i > 1) {
-                            const prev2 = coords[i - 2];
-                            baseAngle = Math.atan2(prev.y - prev2.y, prev.x - prev2.x);
-                        }
-                        
-                        const angleVariation = (random() - 0.5) * Math.PI / 1.5;
-                        const angle = baseAngle + angleVariation;
-                        const distance = minDistance + (random() * 20);
+                // Reverse direction for odd rows to create the 'snake' pattern
+                if (row % 2 !== 0) {
+                    col = numCols - 1 - col;
+                }
 
-                        x = prev.x + Math.cos(angle) * distance;
-                        y = prev.y + Math.sin(angle) * distance;
-                    }
+                // Calculate base position
+                let x = padding + col * colWidth;
+                let y = padding + row * rowHeight;
 
-                    if (x < padding || x > width - spaceSize - padding || y < padding || y > height - spaceSize - padding) {
-                        continue;
-                    }
-
-                    let isOverlapping = false;
-                    for (const pos of coords) {
-                        const dist = Math.sqrt(Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2));
-                        if (dist < minDistance) {
-                            isOverlapping = true;
-                            break;
-                        }
-                    }
-                    if (!isOverlapping) {
-                        validPosition = true;
-                    }
+                // Add some random jitter, but not so much that it crosses over
+                // Don't jitter the first and last space
+                if (i > 0 && i < size - 1) {
+                    x += (random() - 0.5) * colWidth * 0.5;
+                    y += (random() - 0.5) * rowHeight * 0.5;
                 }
                 
-                if (!validPosition) {
-                    x = Math.max(padding, Math.min(x, width - spaceSize - padding));
-                    y = Math.max(padding, Math.min(y, height - spaceSize - padding));
-                }
+                // Ensure it doesn't go out of bounds
+                x = Math.max(padding, Math.min(x, width - padding - spaceSize));
+                y = Math.max(padding, Math.min(y, height - padding - spaceSize));
+
                 coords.push({ x, y });
             }
+
             return coords;
         }
 
@@ -718,6 +706,14 @@
                 choiceTitle.textContent = type === 'bonus' ? 'Casa de Bônus!' : 'Casa de Desafio!';
                 choiceDescription.textContent = event.text;
 
+                if (event.image) {
+                    choiceImage.src = event.image;
+                    choiceImage.alt = event.text;
+                    choiceImage.classList.remove('hidden');
+                } else {
+                    choiceImage.classList.add('hidden');
+                }
+
                 choiceButtons.innerHTML = '';
                 choiceResultText.textContent = '';
                 choiceDiceResult.textContent = '';
@@ -760,6 +756,7 @@
                     closeChoicePopupBtn.classList.remove('hidden');
                     closeChoicePopupBtn.onclick = () => {
                         choicePopup.classList.add('hidden');
+                        choiceImage.classList.add('hidden');
                         choiceButtons.classList.remove('hidden');
                         choiceRollDiceBtn.disabled = false;
                         gameBoard.classList.remove('blur-sm');
@@ -1073,9 +1070,9 @@
                 
                 setTimeout(() => {
                     const playersWins = 
-                        (combinedStats.atk > game.currentMapTheme.boss.stats.atk) +
-                        (combinedStats.def > game.currentMapTheme.boss.stats.def) +
-                        (combinedStats.mana > game.currentMapTheme.boss.stats.mana);
+                        (combinedStats.atk >= game.currentMapTheme.boss.stats.atk) +
+                        (combinedStats.def >= game.currentMapTheme.boss.stats.def) +
+                        (combinedStats.mana >= game.currentMapTheme.boss.stats.mana);
                     
                     let battleResult = '';
                     if (playersWins >= 2) {

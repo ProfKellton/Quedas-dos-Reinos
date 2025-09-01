@@ -175,19 +175,6 @@
         #game-board.map-pantano { background-image: url('https://placehold.co/600x600/4B5320/fff?text=Pantano'); }
         #game-board.map-deserto { background-image: url('https://placehold.co/600x600/F4A460/fff?text=Deserto'); }
 
-        @media (max-width: 768px) {
-            #game-board {
-                width: 95vw;
-                height: 95vw;
-            }
-            .container {
-                padding: 1rem;
-            }
-            .menu-panel h1 {
-                font-size: 2.5rem;
-            }
-        }
-
         .board-space {
             background: rgba(211, 180, 130, 0.8);
             border: 2px solid #6a3d13;
@@ -210,12 +197,6 @@
             background-position: center;
         }
         
-        /* Cores base para as casas (mantidas como fallback) */
-        .challenge-space { background-color: #b22222; }
-        .bonus-space { background-color: #228b22; }
-        .dragon-space { background-color: #8b0000; }
-        .mini-boss-space { background-color: #FFA500; }
-
         .player-piece {
             position: absolute;
             width: 25px;
@@ -230,6 +211,48 @@
             align-items: center;
             justify-content: center;
         }
+
+        /* MEDIA QUERY PARA TELAS MENORES */
+        @media (max-width: 768px) {
+            #game-board {
+                width: 95vw;
+                height: 95vw;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .menu-panel h1 {
+                font-size: 2.5rem;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+            #choice-popup .card { /* Pop-up de escolha ainda menor */
+                padding: 1rem;
+                max-width: 95vw;
+            }
+            .board-space {
+                width: 35px;
+                height: 35px;
+                font-size: 0.8rem;
+            }
+            .player-piece {
+                width: 20px;
+                height: 20px;
+                font-size: 14px;
+            }
+            #close-log-btn { /* Garante que o botão de fechar o log seja clicável */
+                position: sticky;
+                bottom: 1rem;
+                z-index: 210; 
+            }
+        }
+        
+        /* Cores base para as casas (mantidas como fallback) */
+        .challenge-space { background-color: #b22222; }
+        .bonus-space { background-color: #228b22; }
+        .dragon-space { background-color: #8b0000; }
+        .mini-boss-space { background-color: #FFA500; }
         
         .stat-card-image {
             width: 140px; /* AUMENTADO */
